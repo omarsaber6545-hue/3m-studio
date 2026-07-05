@@ -1,11 +1,13 @@
 const express = require('express');
 const authRoutes = require('./auth.routes');
+const aiRoutes = require('./ai.routes');
 const env = require('../config/environment');
 
 const router = express.Router();
 
-// Mount Auth Sub-Router
+// Mount Sub-Routers
 router.use('/auth', authRoutes);
+router.use('/ai', aiRoutes);
 
 // Health check endpoints mounted directly inside router index
 router.get('/health', (req, res) => {

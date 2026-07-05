@@ -1,0 +1,90 @@
+<div class="glass-card text-center animate-fade-in-up" style="display: flex; flex-direction: column; gap: 1.5rem; padding: 2.5rem; text-align: left; box-sizing: border-box; background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-xl);">
+    <div class="text-center" style="margin-bottom: 0.5rem;">
+        <span style="font-size: 2.5rem; line-height: 1;">🌀</span>
+        <h2 style="font-size: 1.65rem; font-weight: 800; margin-top: 0.75rem; background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.6)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Create your account</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Start generating procedural digital assets in seconds</p>
+    </div>
+
+    <!-- Register Form -->
+    <form id="form-register" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="form-group" style="margin:0;">
+            <label class="form-label" for="register-username">Username</label>
+            <input type="text" id="register-username" class="form-control" placeholder="username" required style="font-family: inherit;">
+        </div>
+
+        <div class="form-group" style="margin:0;">
+            <label class="form-label" for="register-email">Email Address</label>
+            <input type="email" id="register-email" class="form-control" placeholder="name@company.com" required style="font-family: inherit;">
+        </div>
+        
+        <div class="form-group" style="margin:0;">
+            <label class="form-label" for="register-password">Password</label>
+            <input type="password" id="register-password" class="form-control" placeholder="••••••••" required style="font-family: inherit;">
+        </div>
+
+        <button type="submit" id="btn-register-submit" class="btn btn-primary w-full" style="padding:0.75rem; font-size:0.9rem;">Sign Up</button>
+    </form>
+
+    <!-- Divider -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.25rem 0;">
+        <div style="height:1px; background:var(--border-color); flex:1;"></div>
+        <span>Or</span>
+        <div style="height:1px; background:var(--border-color); flex:1;"></div>
+    </div>
+
+    <!-- Discord Login -->
+    <a href="/api/v1/auth/discord" class="btn btn-outline w-full" style="background: #5865F2; border-color: #5865F2; color: #ffffff; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; padding: 0.75rem; font-family: inherit;">
+        <span style="font-size: 1.25rem; line-height: 1;">🎮</span> Sign up with Discord
+    </a>
+
+    <div class="text-center" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+        Already registered? <a href="/pages/login" style="color: var(--color-accent, #8b5cf6); font-weight: 600;">Sign in here</a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-register');
+        const submitBtn = document.getElementById('btn-register-submit');
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('register-username').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const password = document.getElementById('register-password').value;
+                
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating account...';
+                }
+
+                try {
+                    const response = await fetch('/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Registration failed');
+                    }
+                    
+                    toasts.show('Account registered successfully. Please sign in.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/pages/login';
+                    }, 1000);
+                } catch (err) {
+                    toasts.show(err.message, 'error');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Sign Up';
+                    }
+                }
+            });
+        }
+    });
+</script>

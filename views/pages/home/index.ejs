@@ -1,0 +1,192 @@
+<!-- Announcement Bar -->
+<div style="background: linear-gradient(90deg, #8b5cf6, #3b82f6); color: #ffffff; padding: 0.5rem 1.5rem; text-align: center; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+    ⚡ 3M Studio Enterprise release countdown: <span id="announcement-countdown" style="font-family: monospace;">00:00:00:00</span>
+</div>
+
+<!-- Hero Section -->
+<section style="padding: 6rem 1.5rem; text-align: center; position: relative; overflow: hidden; background: radial-gradient(circle at center, rgba(139, 92, 246, 0.08), transparent 60%);">
+    <div class="container" style="max-width: 800px; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+        <span class="badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(139, 92, 246, 0.2);">NEXT-GEN CREATIVE SUITE</span>
+        <h1 style="font-size: 4rem; font-weight: 800; line-height: 1.1; margin: 0; background: linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.6)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">The Generative Workspace for Digital Assets</h1>
+        <p style="font-size: 1.15rem; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0;">Access 17 independent neural tools to compile vector graphics, procedural mesh models, quantum soundscapes, and clean documentation files.</p>
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <a href="/pages/ai/chat" class="btn btn-primary animate-fade-in-up">Launch Studio</a>
+            <a href="/pages/pricing" class="btn btn-outline">Explore Plans</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid Section -->
+<section style="padding: 4rem 1.5rem; background: rgba(0,0,0,0.15);">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem;">Independent AI Engines</h2>
+            <p style="color: var(--text-muted); font-size: 1rem;">Every generator is configured as a standalone application layout.</p>
+        </div>
+        
+        <div class="grid grid-3">
+            <div class="glass-card">
+                <span style="font-size: 2rem;">💬</span>
+                <h3 style="font-size: 1.15rem; margin: 1rem 0 0.5rem;">Chat Space</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Multi-provider conversation workspace with streaming SSE support.</p>
+            </div>
+            <div class="glass-card">
+                <span style="font-size: 2rem;">🎨</span>
+                <h3 style="font-size: 1.15rem; margin: 1rem 0 0.5rem;">Image Generator</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Text-to-image synthesis models supporting custom dimensions.</p>
+            </div>
+            <div class="glass-card">
+                <span style="font-size: 2rem;">💻</span>
+                <h3 style="font-size: 1.15rem; margin: 1rem 0 0.5rem;">Code Generator</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Procedural syntax compiling, debugging, and code structure downloads.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Toggles Section -->
+<section style="padding: 4rem 1.5rem;">
+    <div class="container text-center">
+        <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1.5rem;">Pricing Structures</h2>
+        
+        <!-- Toggle button -->
+        <div style="display: inline-flex; align-items: center; gap: 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 0.35rem; border-radius: 99px; margin-bottom: 3rem;">
+            <button id="btn-pricing-monthly" class="btn btn-small btn-primary" style="border-radius:99px; padding:0.4rem 1.25rem;">Monthly</button>
+            <button id="btn-pricing-yearly" class="btn btn-small btn-outline" style="border-radius:99px; border:none; padding:0.4rem 1.25rem;">Yearly (-20%)</button>
+        </div>
+
+        <div class="grid grid-3" style="text-align: left;">
+            <div class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between; min-height: 380px;">
+                <div>
+                    <h3 style="font-size: 1.25rem;">Starter Plan</h3>
+                    <div style="font-size: 2rem; font-weight: 800; margin: 1.5rem 0 1rem;" id="price-starter">$19<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 2rem;">Essential features for creative individuals looking to scale outputs.</p>
+                </div>
+                <a href="/pages/register" class="btn btn-outline w-full text-center">Sign Up</a>
+            </div>
+            
+            <div class="glass-card glow-pulsing" style="display:flex; flex-direction:column; justify-content:space-between; min-height: 380px; border-color: var(--color-accent);">
+                <div>
+                    <span style="background: var(--color-accent); color: #fff; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">MOST POPULAR</span>
+                    <h3 style="font-size: 1.25rem; margin-top: 1rem;">Pro Plan</h3>
+                    <div style="font-size: 2rem; font-weight: 800; margin: 1.5rem 0 1rem;" id="price-pro">$49<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 2rem;">Full access to all 17 AI tools, custom API keys support, and higher speeds.</p>
+                </div>
+                <a href="/pages/register" class="btn btn-primary w-full text-center">Subscribe Now</a>
+            </div>
+
+            <div class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between; min-height: 380px;">
+                <div>
+                    <h3 style="font-size: 1.25rem;">Enterprise Plan</h3>
+                    <div style="font-size: 2rem; font-weight: 800; margin: 1.5rem 0 1rem;" id="price-enterprise">$149<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 2rem;">Unlimited generation capabilities, dedicated GPU rendering queues, and support logs.</p>
+                </div>
+                <a href="/pages/contact" class="btn btn-outline w-full text-center">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Accordion List -->
+<section style="padding: 4rem 1.5rem; background: rgba(0,0,0,0.15);">
+    <div class="container" style="max-width: 700px;">
+        <div class="text-center" style="margin-bottom: 2.5rem;">
+            <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem;">Frequently Asked Questions</h2>
+            <p style="color: var(--text-muted);">Have questions about credits billing or API configurations?</p>
+        </div>
+
+        <input type="search" id="faq-search" placeholder="Search FAQ questions..." style="width: 100%; padding: 0.85rem 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; margin-bottom: 2rem; font-family: inherit; font-size: 0.9rem;">
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+            <div class="faq-item glass-card" style="padding: 1rem 1.25rem; cursor: pointer;">
+                <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.95rem;">
+                    <span>Can I bring my own API keys?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer" style="display:none; font-size:0.85rem; color:var(--text-muted); margin-top:0.75rem; line-height:1.6;">
+                    Yes. Under the security profile tab, Pro and Enterprise tier accounts can link their own Google Gemini, OpenAI, Claude, or DeepSeek API credentials directly to skip credits limits.
+                </div>
+            </div>
+            
+            <div class="faq-item glass-card" style="padding: 1rem 1.25rem; cursor: pointer;">
+                <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.95rem;">
+                    <span>How does Discord login work?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer" style="display:none; font-size:0.85rem; color:var(--text-muted); margin-top:0.75rem; line-height:1.6;">
+                    You can authorize 3M Studio using your Discord credentials. This creates or links to a unified workspace profile containing your display names and avatar badges securely.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Live countdown timer execution
+    const countdownEl = document.getElementById('announcement-countdown');
+    const targetDate = new Date().getTime() + 7 * 24 * 60 * 60 * 1000; // 7 days countdown
+    
+    setInterval(() => {
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        if (countdownEl) {
+            countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+    }, 1000);
+
+    // Pricing Plan toggle switches
+    const btnMonthly = document.getElementById('btn-pricing-monthly');
+    const btnYearly = document.getElementById('btn-pricing-yearly');
+    
+    const priceStarter = document.getElementById('price-starter');
+    const pricePro = document.getElementById('price-pro');
+    const priceEnterprise = document.getElementById('price-enterprise');
+
+    if (btnMonthly && btnYearly) {
+        btnMonthly.addEventListener('click', () => {
+            btnMonthly.className = "btn btn-small btn-primary";
+            btnYearly.className = "btn btn-small btn-outline";
+            priceStarter.innerHTML = '$19<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+            pricePro.innerHTML = '$49<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+            priceEnterprise.innerHTML = '$149<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+        });
+
+        btnYearly.addEventListener('click', () => {
+            btnYearly.className = "btn btn-small btn-primary";
+            btnMonthly.className = "btn btn-small btn-outline";
+            priceStarter.innerHTML = '$15<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+            pricePro.innerHTML = '$39<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+            priceEnterprise.innerHTML = '$119<span style="font-size:1rem; font-weight:500; color:var(--text-muted);">/mo</span>';
+        });
+    }
+
+    // FAQ Accordion clicks
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const answer = item.querySelector('.faq-answer');
+            const icon = item.querySelector('.faq-icon');
+            const isVisible = answer.style.display === 'block';
+            answer.style.display = isVisible ? 'none' : 'block';
+            icon.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    });
+
+    // FAQ Search queries
+    const faqSearch = document.getElementById('faq-search');
+    if (faqSearch) {
+        faqSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            faqItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        });
+    }
+</script>

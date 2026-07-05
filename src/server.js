@@ -62,6 +62,42 @@ app.use(session({
     }
 }));
 
+// Global middleware to populate res.locals.user from JWT cookie
+const jwt = require('jsonwebtoken');
+const prisma = require('./config/database');
+
+app.use(async (req, res, next) => {
+    const token = req.signedCookies?.token;
+    res.locals.user = null;
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, env.JWT_SECRET);
+            const user = await prisma.user.findUnique({
+                where: { id: decoded.userId },
+                include: { role: true, profile: true }
+            });
+            
+            if (user) {
+                req.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role.name,
+                    displayName: user.profile?.displayName || user.username,
+                    profile: user.profile
+                };
+                res.locals.user = req.user;
+            }
+        } catch (err) {
+            // Clear invalid or expired cookies
+            res.clearCookie('token');
+            res.clearCookie('refreshToken');
+        }
+    }
+    next();
+});
+
 // Passport initialization
 app.use(passport.initialize());
 app.use(passport.session());
@@ -79,13 +115,35 @@ app.get('*', (req, res, next) => {
         return res.status(404).json({ error: 'Endpoint not found.' });
     }
     
-    // For non-API routes, attempt to render the page, otherwise render 404
-    const pagePath = req.path === '/' ? 'pages/home/index' : `pages${req.path}/index`;
+    // Resolve page path and choose corresponding layout
+    const cleanPath = req.path.replace(/\/$/, ""); // strip trailing slash
+    const pagePath = cleanPath === '' ? 'pages/home/index' : `pages${cleanPath}/index`;
+    
+    let layoutName = 'main';
+    if (cleanPath.startsWith('/pages/admin')) {
+        layoutName = 'admin';
+    } else if (cleanPath.startsWith('/pages/login') || cleanPath.startsWith('/pages/register')) {
+        layoutName = 'auth';
+    }
+    
     res.render(pagePath, {}, (err, html) => {
         if (err) {
-            return res.status(404).render('pages/404', { error: 'Page not found' });
+            // Render 404 EJS page
+            return res.status(404).render('pages/404/index', {}, (err404, html404) => {
+                if (err404) return res.status(404).send('Page Not Found');
+                res.render('layouts/main', { body: html404, title: '404 — Page Not Found' }, (errLayout, finalHtml) => {
+                    res.send(finalHtml);
+                });
+            });
         }
-        res.send(html);
+        
+        // Wrap page EJS compilation output inside layout shell
+        res.render(`layouts/${layoutName}`, { body: html }, (layoutErr, layoutHtml) => {
+            if (layoutErr) {
+                return next(layoutErr);
+            }
+            res.send(layoutHtml);
+        });
     });
 });
 
