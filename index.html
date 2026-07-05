@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>3M Studio — AI-Powered 3D Motion & Spatial Media Production</title>
+    <meta name="title" content="3M Studio — AI-Powered 3D Motion & Spatial Media Production">
+    <meta name="description" content="Create cinematic 3D animations, interactive WebGL scenes, and high-fidelity spatial audio directly in your browser. Powered by neural generation engines.">
+    <meta name="keywords" content="SaaS, 3D Generator, AI Motion, Spatial Media, WebGL Render, Neural Composer, Web design, 3M Studio">
+    <meta name="author" content="3M Studio Inc.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://3mstudio.design/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://3mstudio.design/">
+    <meta property="og:title" content="3M Studio — AI-Powered 3D Motion & Spatial Media Production">
+    <meta property="og:description" content="Generate high-fidelity 3D environments, complex physics animations, and immersive spatial soundscapes using natural language. Built for modern production teams.">
+    <meta property="og:image" content="https://3mstudio.design/assets/og-cover.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://3mstudio.design/">
+    <meta property="twitter:title" content="3M Studio — AI-Powered 3D Motion & Spatial Media Production">
+    <meta property="twitter:description" content="Generate high-fidelity 3D environments, complex physics animations, and immersive spatial soundscapes using natural language. Built for modern production teams.">
+    <meta property="twitter:image" content="https://3mstudio.design/assets/og-cover.jpg">
+
+    <!-- JSON-LD Structured Data Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "3M Studio",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "49.00",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "1284"
+      }
+    }
+    </script>
+
+    <!-- Font Connections & Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Favicon (Procedural Data SVG) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='50%25' stop-color='%23ec4899'/%3E%3Cstop offset='100%25' stop-color='%23f59e0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='black'/%3E%3Ccircle cx='50' cy='50' r='30' fill='url(%23g)'/%3E%3Cpath d='M35 50 L50 65 L65 35' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+
+    <!-- Main CSS StyleSheet Link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- 1. Background Interactive Canvas (WebGL/Particle simulation layer) -->
+    <canvas id="hero-particles" aria-hidden="true"></canvas>
+    
+    <!-- 2. Dynamic Blur Blob Background Elements -->
+    <div class="blob-container" aria-hidden="true">
+        <div class="blob blob-purple"></div>
+        <div class="blob blob-pink"></div>
+        <div class="blob blob-amber"></div>
+    </div>
+
+    <!-- 3. Announcement Bar -->
+    <section class="announcement-bar" id="top-announcement" role="region" aria-label="Announcement">
+        <div class="announcement-content">
+            <span class="announcement-badge">NEW</span>
+            <span class="announcement-text" id="rotating-announcement-text">Neural Generator v2.4 is officially live. Explore 4K mesh textures instantly.</span>
+            <a href="#/blog" class="announcement-link" aria-label="Read update details">Read Update &rarr;</a>
+        </div>
+        <button class="announcement-close" id="close-announcement" aria-label="Close Announcement">&times;</button>
+    </section>
+
+    <!-- 4. Premium Sticky Navbar -->
+    <header class="app-header" id="main-header">
+        <div class="navbar-container">
+            <!-- Brand Logo -->
+            <a href="#/" class="brand-logo" aria-label="3M Studio Home">
+                <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#818cf8"/>
+                            <stop offset="50%" stop-color="#c084fc"/>
+                            <stop offset="100%" stop-color="#f472b6"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="100" height="100" rx="25" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+                    <circle cx="50" cy="50" r="28" fill="url(#logoGrad)"/>
+                    <path d="M38 52 L47 61 L62 39" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span class="brand-name">3M <span class="brand-highlight">Studio</span></span>
+            </a>
+
+            <!-- Navigation Links & Mega Menu Trigger -->
+            <nav class="desktop-nav" aria-label="Primary Navigation">
+                <div class="nav-item mega-trigger">
+                    <button class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+                        Platform <span class="chevron-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <!-- Mega Menu Dropdown -->
+                    <div class="mega-menu" role="menu">
+                        <div class="mega-menu-grid">
+                            <div class="mega-column">
+                                <h4 class="mega-title">Core Engines</h4>
+                                <a href="#/docs" class="mega-item" role="menuitem">
+                                    <div class="mega-icon-wrapper purple">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                    </div>
+                                    <div class="mega-item-text">
+                                        <span class="mega-item-title">Neural Mesh Core</span>
+                                        <span class="mega-item-desc">High-poly procedural 3D model generation.</span>
+                                    </div>
+                                </a>
+                                <a href="#/docs" class="mega-item" role="menuitem">
+                                    <div class="mega-icon-wrapper pink">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                    </div>
+                                    <div class="mega-item-text">
+                                        <span class="mega-item-title">Spatial Audio Engine</span>
+                                        <span class="mega-item-desc">Dynamic immersive soundscapes and mix tools.</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mega-column">
+                                <h4 class="mega-title">Creative Suite</h4>
+                                <a href="#/" class="mega-item" role="menuitem" data-navigate-demo="true">
+                                    <div class="mega-icon-wrapper blue">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    </div>
+                                    <div class="mega-item-text">
+                                        <span class="mega-item-title">Collaborative Canvas</span>
+                                        <span class="mega-item-desc">Real-time multiplayer staging environment.</span>
+                                    </div>
+                                </a>
+                                <a href="#/docs" class="mega-item" role="menuitem">
+                                    <div class="mega-icon-wrapper amber">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                    </div>
+                                    <div class="mega-item-text">
+                                        <span class="mega-item-title">Instant Deploy Pipeline</span>
+                                        <span class="mega-item-desc">Push interactive assets directly to global CDN.</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mega-featured-column">
+                                <div class="featured-badge">FEATURED RELEASE</div>
+                                <h4 class="featured-title">Cinema Render V3</h4>
+                                <p class="featured-desc">Realtime Ray-Tracing inside browser viewports. Try it in the interactive workspace sandbox.</p>
+                                <a href="#/" class="featured-cta" data-navigate-demo="true">Launch Workspace &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#/about" class="nav-link">About</a>
+                <a href="#/pricing" class="nav-link">Pricing</a>
+                <a href="#/faq" class="nav-link">FAQ</a>
+                <a href="#/blog" class="nav-link">Blog</a>
+                <a href="#/docs" class="nav-link">Docs</a>
+            </nav>
+
+            <!-- Navbar Actions -->
+            <div class="navbar-actions">
+                <!-- Search Button -->
+                <button class="nav-icon-btn" id="trigger-global-search" aria-label="Open Search Dialog" title="Search documentation and posts">
+                    <svg class="nav-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+
+                <!-- Theme Switcher -->
+                <button class="nav-icon-btn" id="theme-toggle-btn" aria-label="Toggle Theme Color Scheme" title="Switch Theme">
+                    <svg class="nav-btn-svg theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg class="nav-btn-svg theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+
+                <!-- Auth Buttons -->
+                <button class="btn btn-outline" id="nav-login-btn">Sign In</button>
+                <button class="btn btn-primary" id="nav-signup-btn">Start Free &rarr;</button>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-toggle" id="mobile-menu-trigger" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu Drawer -->
+        <div class="mobile-menu-drawer" id="mobile-menu-drawer" aria-hidden="true">
+            <nav class="mobile-nav-links" aria-label="Mobile Navigation">
+                <a href="#/" class="mobile-nav-link">Home</a>
+                <a href="#/about" class="mobile-nav-link">About</a>
+                <a href="#/pricing" class="mobile-nav-link">Pricing</a>
+                <a href="#/faq" class="mobile-nav-link">FAQ</a>
+                <a href="#/blog" class="mobile-nav-link">Blog</a>
+                <a href="#/docs" class="mobile-nav-link">Documentation</a>
+                <div class="mobile-nav-divider"></div>
+                <button class="btn btn-outline w-full" id="mobile-login-btn">Sign In</button>
+                <button class="btn btn-primary w-full" id="mobile-signup-btn">Start Free &rarr;</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 5. Main Single Page Application Content Mounting Node -->
+    <main id="app-root" class="page-transition-container" role="main">
+        <!-- Renders the active page dynamically via routing templates -->
+    </main>
+
+    <!-- 6. Global Responsive Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-brand-column">
+                <a href="#/" class="brand-logo" aria-label="3M Studio Home">
+                    <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="30" fill="url(#logoGrad)"/>
+                        <path d="M38 52 L47 61 L62 39" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                    <span class="brand-name">3M <span class="brand-highlight">Studio</span></span>
+                </a>
+                <p class="footer-tagline">Empowering designers and engineers with neural generation workflows to create premium, interactive spatial multimedia pipelines.</p>
+                <div class="footer-socials">
+                    <a href="https://github.com" class="social-icon-link" aria-label="Github Profile" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    </a>
+                    <a href="https://twitter.com" class="social-icon-link" aria-label="Twitter Page" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                    </a>
+                    <a href="https://discord.com" class="social-icon-link" aria-label="Discord Server" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12c.5 0 1-.5 1-1v-1c0-.5-.5-1-1-1s-1 .5-1 1v1c0 .5.5 1 1 1zm8 0c.5 0 1-.5 1-1v-1c0-.5-.5-1-1-1s-1 .5-1 1v1c0 .5.5 1 1 1z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+                    </a>
+                    <a href="https://youtube.com" class="social-icon-link" aria-label="YouTube Channel" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-links-grid">
+                <div class="footer-column">
+                    <h5 class="footer-column-title">Product</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#/" class="footer-link" data-navigate-demo="true">Interactive Canvas</a></li>
+                        <li><a href="#/pricing" class="footer-link">Pricing Models</a></li>
+                        <li><a href="#/coming-soon" class="footer-link">Release Pipeline</a></li>
+                        <li><a href="#/maintenance" class="footer-link">Platform Status</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h5 class="footer-column-title">Resources</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#/docs" class="footer-link">Documentation API</a></li>
+                        <li><a href="#/blog" class="footer-link">Creative Blog</a></li>
+                        <li><a href="#/faq" class="footer-link">Support & FAQs</a></li>
+                        <li><a href="#/404" class="footer-link">Interactive 404</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h5 class="footer-column-title">Company</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#/about" class="footer-link">Core Mission</a></li>
+                        <li><a href="#/about" class="footer-link">Executive Team</a></li>
+                        <li><a href="#/contact" class="footer-link">Direct Contact</a></li>
+                        <li><a href="https://github.com" class="footer-link" target="_blank" rel="noopener">Open Source</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h5 class="footer-column-title">Legal</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#/privacy" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="#/terms" class="footer-link">Terms of Service</a></li>
+                        <li><a href="#/privacy" class="footer-link">Cookie Preferences</a></li>
+                        <li><a href="#/terms" class="footer-link">Security Policies</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+            <div class="footer-bottom-container">
+                <span class="footer-copyright">&copy; 2026 3M Studio Inc. All rights reserved. Made with &hearts; for the modern web.</span>
+                <div class="footer-language-wrapper">
+                    <button class="language-selector-btn" id="language-dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+                        🌐 English (US) <span class="chevron-up">▲</span>
+                    </button>
+                    <!-- Language Selection Dropup -->
+                    <div class="language-dropup" id="language-dropup-menu" role="menu">
+                        <button class="lang-item active" role="menuitem" data-lang="en">English (US)</button>
+                        <button class="lang-item" role="menuitem" data-lang="es">Español</button>
+                        <button class="lang-item" role="menuitem" data-lang="de">Deutsch</button>
+                        <button class="lang-item" role="menuitem" data-lang="fr">Français</button>
+                        <button class="lang-item" role="menuitem" data-lang="ja">日本語</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =========================================================================
+         GLOBAL INTERACTIVE DIALOG MODALS
+         ========================================================================= -->
+
+    <!-- Global Toast Alert Container -->
+    <div id="toast-container" class="toast-stack" aria-live="polite"></div>
+
+    <!-- Global Document & Content Search Modal -->
+    <div id="search-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="modal-card search-card">
+            <div class="search-input-header">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="modal-search-input" placeholder="Search blog, documentation, guides..." autocomplete="off">
+                <button class="modal-close-btn" id="close-search-modal" aria-label="Close search">&times;</button>
+            </div>
+            <div class="search-results-body">
+                <div class="search-section-label">Quick Links</div>
+                <div class="search-quick-links">
+                    <a href="#/docs" class="quick-link-chip">API Reference</a>
+                    <a href="#/pricing" class="quick-link-chip">Pro Subscription</a>
+                    <a href="#/about" class="quick-link-chip">Core Team</a>
+                    <a href="#/contact" class="quick-link-chip">Get Support</a>
+                </div>
+                <div class="search-section-label">Matching Results</div>
+                <div class="search-results-list" id="search-results-list-container">
+                    <p class="search-placeholder-text">Type your query to search spatial media indices...</p>
+                </div>
+            </div>
+            <div class="search-footer-bar">
+                <span>Navigate <kbd>↑</kbd><kbd>↓</kbd></span>
+                <span>Select <kbd>Enter</kbd></span>
+                <span>Close <kbd>ESC</kbd></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Authentication Modal (Unified Login/Signup) -->
+    <div id="auth-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="modal-card auth-card">
+            <button class="modal-close-btn top-right" id="close-auth-modal" aria-label="Close authorization">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tab-login" data-tab="login">Sign In</button>
+                <button class="auth-tab-btn" id="tab-signup" data-tab="signup">Create Account</button>
+            </div>
+
+            <!-- Login Form Pane -->
+            <div class="auth-pane active" id="pane-login">
+                <h3 class="auth-title">Welcome Back</h3>
+                <p class="auth-subtitle">Enter credentials to enter your active visual workspace.</p>
+                
+                <form id="login-form" class="auth-form" novalidate>
+                    <div class="form-group">
+                        <label for="login-email">Corporate Email</label>
+                        <input type="email" id="login-email" required placeholder="name@company.com">
+                        <span class="field-error" id="err-login-email"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="login-pass">Password</label>
+                            <a href="#/coming-soon" class="forgot-pass-link">Forgot?</a>
+                        </div>
+                        <input type="password" id="login-pass" required placeholder="••••••••••••" minlength="8">
+                        <span class="field-error" id="err-login-pass"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">Sign In with Email</button>
+                </form>
+            </div>
+
+            <!-- Signup Form Pane -->
+            <div class="auth-pane" id="pane-signup">
+                <h3 class="auth-title">Join 3M Studio</h3>
+                <p class="auth-subtitle">Get instant access to free neural rendering quotas.</p>
+                
+                <form id="signup-form" class="auth-form" novalidate>
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" required placeholder="Alexander Vance">
+                        <span class="field-error" id="err-signup-name"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Work Email</label>
+                        <input type="email" id="signup-email" required placeholder="name@company.com">
+                        <span class="field-error" id="err-signup-email"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-pass">Secret Password</label>
+                        <input type="password" id="signup-pass" required placeholder="At least 8 characters" minlength="8">
+                        <span class="field-error" id="err-signup-pass"></span>
+                    </div>
+                    <div class="form-check-group">
+                        <input type="checkbox" id="signup-agree" required>
+                        <label for="signup-agree">I agree to the <a href="#/terms">Terms of Service</a> &amp; <a href="#/privacy">Privacy Policy</a>.</label>
+                    </div>
+                    <span class="field-error" id="err-signup-agree" style="display:block; margin-bottom:1rem;"></span>
+                    
+                    <button type="submit" class="btn btn-primary w-full">Create Free Account</button>
+                </form>
+            </div>
+
+            <!-- SSO Social Logins -->
+            <div class="auth-divider"><span>Or continue with SSO</span></div>
+            <div class="sso-buttons-row">
+                <button class="btn btn-outline sso-btn" id="sso-google" type="button">
+                    <svg class="sso-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.978 0-.74-.08-1.305-.176-1.866H12.24z"/></svg>
+                    Google
+                </button>
+                <button class="btn btn-outline sso-btn" id="sso-github" type="button">
+                    <svg class="sso-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                    GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         SPA TEMPLATE REPOSITORY — 12 RICH PAGES
+         ========================================================================= -->
+
+    <!-- PAGE 1: HOME PAGE -->
+    <template id="page-home">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <a href="#/blog" class="hero-badge-link" aria-label="Read our latest blog post">
+                    <span class="hero-badge">Next-Gen Release</span>
+                    <span class="hero-badge-text">Announcing 3M Neural Composition 3.0</span>
+                    <span class="hero-badge-arrow">&rarr;</span>
+                </a>
+                
+                <h1 class="hero-title animate-title">
+                    Transform Prompts <br>
+                    <span class="text-gradient">Into Immersive 3D Media</span>
+                </h1>
+                
+                <p class="hero-subtitle animate-subtitle">
+                    Generate production-ready 3D assets, dynamic spatial audio environments, and animated interactions using natural language. Deploy straight to our spatial CDN in seconds.
+                </p>
+                
+                <div class="hero-buttons-row">
+                    <button class="btn btn-primary btn-large btn-glow" id="hero-start-btn">Start Creating Now &rarr;</button>
+                    <a href="#/docs" class="btn btn-outline btn-large">Read Developer Documentation</a>
+                </div>
+
+                <!-- Floating Interactive Dashboard Mockup -->
+                <div class="dashboard-mockup-wrapper" id="dashboard-parallax-box">
+                    <div class="dashboard-mockup-frame">
+                        <div class="mockup-header-bar">
+                            <div class="mockup-dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <div class="mockup-title-bar">3M Studio Workspace — neural-scene_final.json</div>
+                            <div class="mockup-actions-row">
+                                <span class="mockup-action-indicator online">Connected</span>
+                            </div>
+                        </div>
+                        <div class="mockup-body">
+                            <!-- Sidebar inside Mockup -->
+                            <div class="mockup-sidebar">
+                                <div class="mockup-nav-sec">PROJECT</div>
+                                <div class="mockup-nav-item active">🚀 Main Scene</div>
+                                <div class="mockup-nav-item">💎 Raw Meshes</div>
+                                <div class="mockup-nav-item">🔊 Audio Stems</div>
+                                <div class="mockup-nav-item">⚡ CDN Deployments</div>
+                                
+                                <div class="mockup-nav-sec" style="margin-top:1.5rem;">PARAMETERS</div>
+                                <div class="mockup-parameter-slider">
+                                    <div class="slider-info"><span>Fidelity</span><span id="slider-fid-val">84%</span></div>
+                                    <div class="slider-bar"><div class="slider-fill" style="width: 84%"></div></div>
+                                </div>
+                                <div class="mockup-parameter-slider">
+                                    <div class="slider-info"><span>Refractions</span><span id="slider-ref-val">60%</span></div>
+                                    <div class="slider-bar"><div class="slider-fill" style="width: 60%"></div></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Visual Workspace inside Mockup -->
+                            <div class="mockup-workspace-area">
+                                <div class="mockup-viewport" id="mockup-render-viewport">
+                                    <!-- Animated Mesh Graphic (Procedural CSS) -->
+                                    <div class="mockup-3d-gizmo">
+                                        <div class="gizmo-ring ring-1"></div>
+                                        <div class="gizmo-ring ring-2"></div>
+                                        <div class="gizmo-ring ring-3"></div>
+                                        <div class="gizmo-core"></div>
+                                    </div>
+                                    
+                                    <div class="viewport-overlay-data">
+                                        <span>Render Engine: CINEMA-RAY v3.0</span>
+                                        <span>Frame Time: 1.42ms</span>
+                                        <span>Active Nodes: 1,024</span>
+                                    </div>
+                                </div>
+                                <div class="mockup-prompt-console">
+                                    <div class="console-prompt-badge">Neural Prompt</div>
+                                    <input type="text" class="console-prompt-input" id="mockup-prompt-input" placeholder="Type instructions: 'Generate a glass obsidian sphere refracting neon pink lights'...">
+                                    <button class="btn btn-primary btn-small console-send-btn" id="mockup-prompt-submit">Generate</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="section-container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="3800000">0</div>
+                        <div class="stat-label">AI Rendered Media Assets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="999">0</div>
+                        <div class="stat-label">Production Render Uptime</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="250000">0</div>
+                        <div class="stat-label">Professional Creators</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="10">0</div>
+                        <div class="stat-label">Latency in CDN Delivery (ms)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trusted Logos Slider -->
+        <section class="trusted-logos-section">
+            <div class="section-container">
+                <h4 class="trusted-title">COMPATIBLE WITH GLOBAL WORKFLOWS</h4>
+                <div class="logos-slider-track">
+                    <div class="logos-slider-content">
+                        <!-- Company SVGs simulated -->
+                        <span class="logo-item-text"><span class="logo-bullet">■</span> VERCEL</span>
+                        <span class="logo-item-text"><span class="logo-bullet">▲</span> STRIPE</span>
+                        <span class="logo-item-text"><span class="logo-bullet">◆</span> LINEAR</span>
+                        <span class="logo-item-text"><span class="logo-bullet">●</span> FIGMA</span>
+                        <span class="logo-item-text"><span class="logo-bullet">▼</span> DISCORD</span>
+                        <span class="logo-item-text"><span class="logo-bullet">★</span> NVIDIA</span>
+                        <span class="logo-item-text"><span class="logo-bullet">■</span> VERCEL</span>
+                        <span class="logo-item-text"><span class="logo-bullet">▲</span> STRIPE</span>
+                        <span class="logo-item-text"><span class="logo-bullet">◆</span> LINEAR</span>
+                        <span class="logo-item-text"><span class="logo-bullet">●</span> FIGMA</span>
+                        <span class="logo-item-text"><span class="logo-bullet">▼</span> DISCORD</span>
+                        <span class="logo-item-text"><span class="logo-bullet">★</span> NVIDIA</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Grid -->
+        <section class="features-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">ENTERPRISE GRADE UTILITIES</span>
+                    <h2 class="section-title">An Entire Creative Suite <br>Inside a Single API Key</h2>
+                    <p class="section-description">Stop managing fragmenting nodes. 3M Studio unifies spatial computing, neural layout logic, and automated asset generation workflows.</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Procedural Mesh Core</h3>
+                        <p class="feature-card-text">Generate production-ready quad geometries from text. Includes procedural texture map baking up to 8K resolution.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon pink">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Quantum Sound Fields</h3>
+                        <p class="feature-card-text">AI audio layout engine. Maps synthesized object collisions into realistic Dolby-atmos spatialized binaural audio tracks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Live Collaborator Canvas</h3>
+                        <p class="feature-card-text">Multi-client spatial environment. Pair-program parameters with team members in synchronous 3D WebGL editor blocks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon amber">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Fast Edge CDN Pipeline</h3>
+                        <p class="feature-card-text">Publish scenes directly to local sub-nodes. Optimizes geometry sizes on the fly to fit mobile devices, laptops, and XR headsets.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Workspace Demo Showcase -->
+        <section class="demo-showcase-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">SEE IT IN ACTION</span>
+                    <h2 class="section-title">Multi-Modal Creation Sandbox</h2>
+                    <p class="section-description">Test prompt adjustments below to preview how our rendering servers respond immediately with layout coordinates.</p>
+                </div>
+
+                <div class="interactive-demo-panel">
+                    <div class="demo-tabs">
+                        <button class="demo-tab-btn active" data-demo-tab="sphere">Obsidian Prism</button>
+                        <button class="demo-tab-btn" data-demo-tab="cyber">Cyberpunk Node</button>
+                        <button class="demo-tab-btn" data-demo-tab="cloud">Liquid Cloud</button>
+                    </div>
+                    <div class="demo-workspace">
+                        <div class="demo-preview-column">
+                            <div class="demo-interactive-stage" id="demo-stage-view">
+                                <!-- Interactive Elements Loaded dynamically by script.js -->
+                                <div class="stage-shape-render sphere-theme"></div>
+                            </div>
+                        </div>
+                        <div class="demo-details-column">
+                            <h4 class="demo-details-title">Mesh Node Parameters</h4>
+                            <div class="demo-code-block-wrapper">
+                                <pre><code class="language-json" id="demo-json-output">{
+  "engine": "CinemaRender-v3",
+  "primitive": "obsidian-sphere",
+  "roughness": 0.04,
+  "transmission": 0.95,
+  "refractionIndex": 1.48,
+  "emissiveMap": "pink-glow-radial",
+  "polyCount": 42000,
+  "bakedTextures": true
+}</code></pre>
+                            </div>
+                            <div class="demo-sliders-list">
+                                <div class="slider-row">
+                                    <label>Roughness</label>
+                                    <input type="range" class="demo-slider-bar" id="slider-roughness" min="0" max="100" value="4">
+                                </div>
+                                <div class="slider-row">
+                                    <label>Light Refraction</label>
+                                    <input type="range" class="demo-slider-bar" id="slider-refract" min="100" max="200" value="148">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-full" id="demo-bake-btn">Bake Mesh Geometry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Premium Testimonials -->
+        <section class="testimonials-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">SUCCESS STORIES</span>
+                    <h2 class="section-title">Validated by Leading Innovators</h2>
+                </div>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"Implementing 3M Studio decreased our spatial pipeline turnaround times by over 80%. We can ship full spatial mesh stages to our client browser builds instantly."</p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar-placeholder purple">JD</div>
+                            <div class="user-info">
+                                <span class="user-name">Julian Deering</span>
+                                <span class="user-role">Lead Spatial Designer, Vercel</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"The neural texturing system outputs extremely detailed map coordinates. The generated Dolby soundscapes match the spatial boundaries beautifully."</p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar-placeholder pink">MA</div>
+                            <div class="user-info">
+                                <span class="user-name">Marta Al-Jamil</span>
+                                <span class="user-role">Creative Director, Stripe</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"Integrating 3M Studio is a breeze. The API took an afternoon to connect, and now our entire team generates visual concepts synchronously inside Slack."</p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar-placeholder blue">HK</div>
+                            <div class="user-info">
+                                <span class="user-name">Hiroshi Kajiura</span>
+                                <span class="user-role">VP of Product, Linear</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Callout Block -->
+        <section class="cta-section">
+            <div class="section-container">
+                <div class="cta-card">
+                    <div class="cta-grid">
+                        <div class="cta-info-side">
+                            <h2 class="cta-title">Ready to Sculpt <br>the Next Dimension?</h2>
+                            <p class="cta-text">Join over 250,000 creators. Start deploying immersive 3D multimedia directly to web nodes in minutes.</p>
+                            <div class="cta-buttons">
+                                <button class="btn btn-white btn-large" id="cta-start-btn">Start Creating For Free</button>
+                                <a href="#/pricing" class="btn btn-transparent btn-large">View Commercial Plans &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="cta-graphic-side">
+                            <div class="cta-mesh-bubble"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Subscription Block -->
+        <section class="newsletter-section">
+            <div class="section-container">
+                <div class="newsletter-card">
+                    <h3 class="newsletter-title">Subscribe to the 3M Dispatch</h3>
+                    <p class="newsletter-desc">Weekly briefings covering neural modeling, spatial WebGL shaders, and the evolution of visual media standards.</p>
+                    <form id="newsletter-form" class="newsletter-input-row" novalidate>
+                        <input type="email" id="newsletter-email" required placeholder="Enter corporate email Address">
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                    <span class="field-error" id="err-newsletter-email" style="display:block; margin-top:0.5rem; text-align:center;"></span>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 2: ABOUT PAGE -->
+    <template id="page-about">
+        <section class="about-hero-section">
+            <div class="section-container align-center">
+                <span class="section-subtitle">OUR MISSION</span>
+                <h1 class="page-title">Pioneering the Architecture of Spatial Multimedia</h1>
+                <p class="page-subtitle">We believe creating immersive 3D spaces, objects, and ambient soundscapes should be as simple as drafting a text file.</p>
+            </div>
+        </section>
+
+        <section class="values-section">
+            <div class="section-container">
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-num">01</div>
+                        <h3 class="value-title">Spatial Equality</h3>
+                        <p class="value-desc">Bringing high-fidelity interactive media workflows out of restricted offline game engines directly to native open web layers.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-num">02</div>
+                        <h3 class="value-title">Neural Acceleration</h3>
+                        <p class="value-desc">Using neural generators as assistant tools for developers, letting humans focus on layouts, interactions, and final designs.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-num">03</div>
+                        <h3 class="value-title">Open Standards</h3>
+                        <p class="value-desc">Fully supporting glTF, WebGL2, WebGPU, and Dolby-Atmos mappings so your creations remain universally portable.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Company Milestones Timeline -->
+        <section class="timeline-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">OUR JOURNEY</span>
+                    <h2 class="section-title">Milestones of Innovation</h2>
+                </div>
+
+                <div class="timeline-wrapper">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-item left">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">JUNE 2024</span>
+                            <h4 class="timeline-title">Project Founding</h4>
+                            <p class="timeline-desc">3M Studio launched with a core team of spatial developers and graphics architects to democratize browser WebGL.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item right">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">MARCH 2025</span>
+                            <h4 class="timeline-title">Cinema Render Core Launch</h4>
+                            <p class="timeline-desc">First release of our in-browser raytracer, supporting real-time refraction models without complex shaders.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item left">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">JANUARY 2026</span>
+                            <h4 class="timeline-title">AI Neural Mesh Launch</h4>
+                            <p class="timeline-desc">Integrated multi-modal prompt models directly to the render chain, launching prompt-to-model systems instantly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="team-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">THE ARCHITECTS</span>
+                    <h2 class="section-title">Meet the Core Team</h2>
+                </div>
+
+                <div class="team-grid">
+                    <div class="team-card">
+                        <div class="team-avatar-wrapper">
+                            <div class="team-avatar-placeholder purple">AV</div>
+                        </div>
+                        <h4 class="team-member-name">Alexander Vance</h4>
+                        <span class="team-member-role">CEO &amp; Core Graphics Architect</span>
+                        <p class="team-member-bio">Former rendering pipeline researcher at NVIDIA. Obsessed with high-poly CSS raster optimization.</p>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar-wrapper">
+                            <div class="team-avatar-placeholder pink">EC</div>
+                        </div>
+                        <h4 class="team-member-name">Elena Rostova</h4>
+                        <span class="team-member-role">VP of Product Design</span>
+                        <p class="team-member-bio">Leading designer focused on fluid micro-interactions, dark UI layouts, and accessibility standards.</p>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar-wrapper">
+                            <div class="team-avatar-placeholder blue">DM</div>
+                        </div>
+                        <h4 class="team-member-name">Devon Morris</h4>
+                        <span class="team-member-role">Head of AI Research</span>
+                        <p class="team-member-bio">Spearheaded spatial geometry texturing transformers. Building 3D procedural layout generators.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 3: PRICING PAGE -->
+    <template id="page-pricing">
+        <section class="pricing-hero">
+            <div class="section-container align-center">
+                <span class="section-subtitle">PRICING MODELS</span>
+                <h1 class="page-title">Flexible Pricing Designed <br>to Scale with Production</h1>
+                <p class="page-subtitle">Get instant server render credits. Upgrade or downgrade plans at any point based on project needs.</p>
+                
+                <div class="pricing-toggle-row">
+                    <span class="toggle-label active" id="toggle-monthly">Monthly</span>
+                    <button class="pricing-toggle-switch" id="pricing-billing-switch" aria-label="Toggle billing duration monthly or annually">
+                        <span class="switch-dot"></span>
+                    </button>
+                    <span class="toggle-label" id="toggle-annual">Annually <span class="discount-pill">Save 20%</span></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Cards Grid -->
+        <section class="pricing-cards-section">
+            <div class="section-container">
+                <div class="pricing-grid">
+                    <!-- Starter Plan -->
+                    <div class="pricing-card">
+                        <div class="plan-header">
+                            <h3 class="plan-name">Starter Sandbox</h3>
+                            <p class="plan-tagline">Ideal for independent designers sketching visual layout drafts.</p>
+                            <div class="plan-price-row">
+                                <span class="price-symbol">$</span>
+                                <span class="price-amount" id="price-starter">0</span>
+                                <span class="price-period">/mo</span>
+                            </div>
+                        </div>
+                        <div class="plan-body">
+                            <button class="btn btn-outline w-full plan-cta-btn" data-plan="free">Start Free Trial</button>
+                            <ul class="plan-features-list">
+                                <li><span class="check-icon">✓</span> 50 Mesh Generations / Month</li>
+                                <li><span class="check-icon">✓</span> WebGL Canvas Sandbox Access</li>
+                                <li><span class="check-icon">✓</span> Community Discord Support</li>
+                                <li class="disabled"><span class="check-icon">✗</span> High-Resolution 8K Texture Baking</li>
+                                <li class="disabled"><span class="check-icon">✗</span> Dedicated Edge CDN Allocations</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pro Plan (Highlighted) -->
+                    <div class="pricing-card premium">
+                        <div class="popular-ribbon">POPULAR</div>
+                        <div class="plan-header">
+                            <h3 class="plan-name">Creator Pro</h3>
+                            <p class="plan-tagline">Perfect for agencies shipping commercial spatial projects.</p>
+                            <div class="plan-price-row">
+                                <span class="price-symbol">$</span>
+                                <span class="price-amount" id="price-pro">49</span>
+                                <span class="price-period">/mo</span>
+                            </div>
+                        </div>
+                        <div class="plan-body">
+                            <button class="btn btn-primary w-full btn-glow plan-cta-btn" data-plan="pro">Upgrade to Pro</button>
+                            <ul class="plan-features-list">
+                                <li><span class="check-icon">✓</span> 1000 Mesh Generations / Month</li>
+                                <li><span class="check-icon">✓</span> Full 8K Mesh Texture Baking</li>
+                                <li><span class="check-icon">✓</span> Multiplayer Collaborative Canvas</li>
+                                <li><span class="check-icon">✓</span> Dedicated Local Edge CDN Hosting</li>
+                                <li><span class="check-icon">✓</span> Priority Slack Technical Support</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Enterprise Plan -->
+                    <div class="pricing-card">
+                        <div class="plan-header">
+                            <h3 class="plan-name">Production Studio</h3>
+                            <p class="plan-tagline">Tailored configurations for media houses and game platforms.</p>
+                            <div class="plan-price-row">
+                                <span class="price-symbol">$</span>
+                                <span class="price-amount" id="price-enterprise">199</span>
+                                <span class="price-period">/mo</span>
+                            </div>
+                        </div>
+                        <div class="plan-body">
+                            <button class="btn btn-outline w-full plan-cta-btn" data-plan="enterprise">Contact Enterprise</button>
+                            <ul class="plan-features-list">
+                                <li><span class="check-icon">✓</span> Unlimited Geometries &amp; Rendering</li>
+                                <li><span class="check-icon">✓</span> Custom Fine-Tuned Local Models</li>
+                                <li><span class="check-icon">✓</span> Sub-10ms Global Edge Routing</li>
+                                <li><span class="check-icon">✓</span> Dedicated Cluster Node Servers</li>
+                                <li><span class="check-icon">✓</span> 24/7 Phone &amp; On-Call Engineering</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Comparison Matrix -->
+        <section class="comparison-section">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <h2 class="section-title">Compare Plan Capabilities</h2>
+                    <p class="section-description">A granular overview of the permissions and features active under each tiers.</p>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>Starter</th>
+                                <th>Creator Pro</th>
+                                <th>Studio Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-feature-title">Monthly Render Tokens</td>
+                                <td>50</td>
+                                <td>1,000</td>
+                                <td>Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td class="table-feature-title">Texture Map Max Resolution</td>
+                                <td>2K</td>
+                                <td>8K</td>
+                                <td>Custom 16K</td>
+                            </tr>
+                            <tr>
+                                <td class="table-feature-title">Live Room Collaborators</td>
+                                <td>1 User</td>
+                                <td>Up to 10</td>
+                                <td>Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td class="table-feature-title">Asset Deployment CDN Nodes</td>
+                                <td>Shared Edge</td>
+                                <td>Dedicated IP</td>
+                                <td>Dedicated Clusters</td>
+                            </tr>
+                            <tr>
+                                <td class="table-feature-title">Custom Fine-Tuned LORAs</td>
+                                <td>✗</td>
+                                <td>✗</td>
+                                <td>✓ Included</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 4: CONTACT PAGE -->
+    <template id="page-contact">
+        <section class="contact-hero">
+            <div class="section-container align-center">
+                <span class="section-subtitle">GET IN TOUCH</span>
+                <h1 class="page-title">Connect with Our Visual <br>Systems Specialists</h1>
+                <p class="page-subtitle">Need enterprise pricing models or custom pipeline integration support? Fill out the details below.</p>
+            </div>
+        </section>
+
+        <section class="contact-body-section">
+            <div class="section-container">
+                <div class="contact-grid">
+                    <!-- Contact Form Card -->
+                    <div class="contact-form-wrapper">
+                        <form id="contact-form" class="glass-form" novalidate>
+                            <h3 class="form-card-title">Send Message</h3>
+                            
+                            <div class="form-row-two">
+                                <div class="form-group">
+                                    <label for="contact-firstname">First Name</label>
+                                    <input type="text" id="contact-firstname" required placeholder="Elena">
+                                    <span class="field-error" id="err-contact-firstname"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-lastname">Last Name</label>
+                                    <input type="text" id="contact-lastname" required placeholder="Vance">
+                                    <span class="field-error" id="err-contact-lastname"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contact-email">Corporate Email</label>
+                                <input type="email" id="contact-email" required placeholder="name@company.com">
+                                <span class="field-error" id="err-contact-email"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact-subject">Topic</label>
+                                <select id="contact-subject" required>
+                                    <option value="" disabled selected>Select an option</option>
+                                    <option value="enterprise">Enterprise Custom Quote</option>
+                                    <option value="support">Technical Support Ticket</option>
+                                    <option value="press">Press &amp; Media Relations</option>
+                                    <option value="partnership">Strategic Partnerships</option>
+                                </select>
+                                <span class="field-error" id="err-contact-subject"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact-message">Inquiry Details</label>
+                                <textarea id="contact-message" required placeholder="How can we assist your rendering flows?..." rows="5"></textarea>
+                                <span class="field-error" id="err-contact-message"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-full">Send Message &rarr;</button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Details Column -->
+                    <div class="contact-details-column">
+                        <div class="detail-card">
+                            <h4 class="detail-card-title">Global Headquarters</h4>
+                            <p class="detail-card-text">
+                                3M Studio Inc.<br>
+                                542 Folsom Street, Suite 400<br>
+                                San Francisco, CA 94107
+                            </p>
+                            <span class="detail-action-link">Get Directions &rarr;</span>
+                        </div>
+
+                        <div class="detail-card">
+                            <h4 class="detail-card-title">Customer Operations</h4>
+                            <p class="detail-card-text">
+                                Email: support@3mstudio.design<br>
+                                Business Lines: +1 (800) 555-0192
+                            </p>
+                        </div>
+
+                        <div class="detail-card">
+                            <h4 class="detail-card-title">European Node Hub</h4>
+                            <p class="detail-card-text">
+                                3M Studio Europe<br>
+                                24 Broadwick Street, Soho<br>
+                                London W1F 8HT, UK
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 5: FAQ PAGE -->
+    <template id="page-faq">
+        <section class="faq-hero">
+            <div class="section-container align-center">
+                <span class="section-subtitle">FAQ</span>
+                <h1 class="page-title">Answers to Essential Questions</h1>
+                <p class="page-subtitle">Have questions regarding pricing tokens, modeling engines, or data security? Find details below.</p>
+                
+                <div class="faq-search-wrapper">
+                    <input type="search" id="faq-search-input" placeholder="Search questions...">
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-accordions-section">
+            <div class="section-container">
+                <div class="faq-categories-row">
+                    <button class="faq-cat-btn active" data-faq-cat="general">General</button>
+                    <button class="faq-cat-btn" data-faq-cat="technical">Technical</button>
+                    <button class="faq-cat-btn" data-faq-cat="billing">Billing</button>
+                </div>
+
+                <div class="faq-list-container" id="faq-accordions-holder">
+                    <!-- General FAQs -->
+                    <div class="faq-accordion-item" data-category="general">
+                        <button class="faq-question-btn" aria-expanded="false">
+                            What is 3M Studio? <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer-pane">
+                            <p>3M Studio is a web-based, AI-accelerated spatial computing platform that permits artists, designers, and web developers to create meshes, textures, sound waves, and layouts in a unified sandbox, deploying straight to global edge points.</p>
+                        </div>
+                    </div>
+                    <div class="faq-accordion-item" data-category="general">
+                        <button class="faq-question-btn" aria-expanded="false">
+                            Do I need an active GPU to run 3M Studio? <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer-pane">
+                            <p>No. All intensive rendering processes, texturing pipelines, and audio syntheses are executed asynchronously inside our remote GPU clusters. Your browser only handles rendering vectors and lightweight WebGL preview layers.</p>
+                        </div>
+                    </div>
+
+                    <!-- Technical FAQs -->
+                    <div class="faq-accordion-item" data-category="technical" style="display:none;">
+                        <button class="faq-question-btn" aria-expanded="false">
+                            What export types are supported? <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer-pane">
+                            <p>We export to universal game and web structures, including glTF, OBJ, USDZ (for Apple Vision OS), WAV (spatial stems), and raw HTML/JS code embeds.</p>
+                        </div>
+                    </div>
+                    <div class="faq-accordion-item" data-category="technical" style="display:none;">
+                        <button class="faq-question-btn" aria-expanded="false">
+                            Can I connect 3M Studio to a custom CI/CD pipeline? <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer-pane">
+                            <p>Yes. Our Creator Pro and Enterprise packages grant complete access to our REST API and CLI tool, allowing you to generate models programmatically on git push events.</p>
+                        </div>
+                    </div>
+
+                    <!-- Billing FAQs -->
+                    <div class="faq-accordion-item" data-category="billing" style="display:none;">
+                        <button class="faq-question-btn" aria-expanded="false">
+                            What happens when I run out of generation tokens? <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer-pane">
+                            <p>If you consume your active plan quota before the month rolls over, you can purchase individual token buckets at $0.05 per mesh, or upgrade to a higher tier plan with a discount.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 6: BLOG PAGE -->
+    <template id="page-blog">
+        <section class="blog-hero">
+            <div class="section-container">
+                <span class="section-subtitle">CREATIVE DISPATCH</span>
+                <h1 class="page-title">Thoughts, Guides, &amp; Visual Updates</h1>
+                <p class="page-subtitle">Insights from graphics engineers and designers pioneering immersive visual technologies.</p>
+                
+                <div class="blog-filters-row">
+                    <input type="search" id="blog-search-bar" placeholder="Search articles...">
+                    <div class="blog-categories">
+                        <button class="blog-cat-btn active" data-filter="all">All</button>
+                        <button class="blog-cat-btn" data-filter="engineering">Engineering</button>
+                        <button class="blog-cat-btn" data-filter="tutorials">Tutorials</button>
+                        <button class="blog-cat-btn" data-filter="design">Design</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Posts Grid -->
+        <section class="blog-grid-section">
+            <div class="section-container">
+                <div class="blog-posts-grid" id="blog-posts-container">
+                    <!-- Post 1 -->
+                    <article class="blog-card" data-category="engineering" data-id="1">
+                        <div class="blog-card-meta">
+                            <span class="blog-category-badge">Engineering</span>
+                            <span class="blog-read-time">5 min read</span>
+                        </div>
+                        <h3 class="blog-card-title">Realtime Ray-Tracing inside WebGL2: How we achieved sub-2ms frame latency</h3>
+                        <p class="blog-card-excerpt">A technical breakdown detailing how we bypassed canvas bottlenecks using fragment buffers and noise-canceling denoisers directly on local browser cores.</p>
+                        <div class="blog-card-footer">
+                            <span class="blog-author">Elena Rostova</span>
+                            <button class="btn btn-transparent blog-read-btn">Read Article &rarr;</button>
+                        </div>
+                    </article>
+
+                    <!-- Post 2 -->
+                    <article class="blog-card" data-category="design" data-id="2">
+                        <div class="blog-card-meta">
+                            <span class="blog-category-badge">Design</span>
+                            <span class="blog-read-time">8 min read</span>
+                        </div>
+                        <h3 class="blog-card-title">Designing for VisionOS: Translating glTF files into spatial USDZ configurations</h3>
+                        <p class="blog-card-excerpt">Best practices regarding spacing, depth scaling, and material refraction indices when displaying 3D objects in mixed-reality vision boundaries.</p>
+                        <div class="blog-card-footer">
+                            <span class="blog-author">Devon Morris</span>
+                            <button class="btn btn-transparent blog-read-btn">Read Article &rarr;</button>
+                        </div>
+                    </article>
+
+                    <!-- Post 3 -->
+                    <article class="blog-card" data-category="tutorials" data-id="3">
+                        <div class="blog-card-meta">
+                            <span class="blog-category-badge">Tutorials</span>
+                            <span class="blog-read-time">12 min read</span>
+                        </div>
+                        <h3 class="blog-card-title">Creating Neural Sound Fields: Dynamic Atmos sounds mapped to prompt events</h3>
+                        <p class="blog-card-excerpt">A complete walkthrough showing developers how to synthesize object sound files based on materials and trigger coordinates using 3M Studio audio stems.</p>
+                        <div class="blog-card-footer">
+                            <span class="blog-author">Alexander Vance</span>
+                            <button class="btn btn-transparent blog-read-btn">Read Article &rarr;</button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full Blog Post Viewer (Slide-over/overlay template) -->
+        <div id="blog-viewer-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+            <div class="modal-card blog-viewer-card">
+                <button class="modal-close-btn" id="close-blog-viewer" aria-label="Close article">&times;</button>
+                <div class="blog-viewer-content" id="blog-viewer-content-target">
+                    <!-- Active blog post contents will be injected here by script.js -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- PAGE 7: DOCUMENTATION PAGE -->
+    <template id="page-docs">
+        <div class="docs-layout-container">
+            <!-- Left Sidebar Navigation -->
+            <aside class="docs-sidebar" aria-label="Documentation Navigation">
+                <div class="docs-sidebar-header">
+                    <span class="docs-version-badge">API v2.4.0</span>
+                </div>
+                <nav class="docs-sidebar-nav">
+                    <div class="docs-nav-group">
+                        <h5 class="docs-group-title">Getting Started</h5>
+                        <a href="#/docs" class="docs-nav-link active" data-doc-pane="intro">Introduction</a>
+                        <a href="#/docs" class="docs-nav-link" data-doc-pane="quickstart">Quickstart SDK</a>
+                        <a href="#/docs" class="docs-nav-link" data-doc-pane="auth">Authentication</a>
+                    </div>
+                    <div class="docs-nav-group">
+                        <h5 class="docs-group-title">API Reference</h5>
+                        <a href="#/docs" class="docs-nav-link" data-doc-pane="meshes">Generate Meshes</a>
+                        <a href="#/docs" class="docs-nav-link" data-doc-pane="audio">Spatial Audio</a>
+                    </div>
+                    <div class="docs-nav-group">
+                        <h5 class="docs-group-title">Developer Utilities</h5>
+                        <a href="#/docs" class="docs-nav-link" data-doc-pane="api-generator">Mock API Key Tool</a>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Docs Content Area -->
+            <article class="docs-content-main" id="docs-content-viewport">
+                <!-- Inside Page: Intro (Loaded default) -->
+                <div class="doc-pane-block active" id="doc-pane-intro">
+                    <h1 class="doc-title">Introduction to 3M Studio SDK</h1>
+                    <p class="doc-lead">Welcome to the core documentation hub. 3M Studio provides robust tools to generate high-fidelity, interactive 3D media directly on our decentralized GPU edge node array.</p>
+                    
+                    <p>Through our platform, you can orchestrate complex WebGL meshes, compute light refraction paths, synthesize material-aligned spatial sound fields, and push spatial assets directly to a fast CDN network via programmatic endpoints.</p>
+                    
+                    <h3 class="doc-sec-title">Core Design Principles</h3>
+                    <ul>
+                        <li><strong>Performance First:</strong> Output files are optimized programmatically to execute inside browsers under 60fps bounds.</li>
+                        <li><strong>Standard Portability:</strong> All outputs follow standard glTF formats, allowing you to load assets easily inside Three.js, BabylonJS, or Unreal Engine.</li>
+                        <li><strong>High Developer Control:</strong> Fine-tune materials, vertex indices, textures, and audio stems using parameters or simple natural queries.</li>
+                    </ul>
+                </div>
+
+                <!-- Inside Page: Quickstart -->
+                <div class="doc-pane-block" id="doc-pane-quickstart" style="display:none;">
+                    <h1 class="doc-title">Quickstart Guide</h1>
+                    <p class="doc-lead">Begin rendering procedural meshes inside your applications under two minutes.</p>
+                    
+                    <h3 class="doc-sec-title">1. Installation</h3>
+                    <p>Incorporate our core engine script link into your HTML templates, or pull our module compiler directly:</p>
+                    <div class="code-block-header-bar">
+                        <span>Terminal</span>
+                        <button class="copy-code-btn" data-code="npm i @3mstudio/mesh-core">Copy</button>
+                    </div>
+                    <pre><code class="language-bash">npm install @3mstudio/mesh-core</code></pre>
+
+                    <h3 class="doc-sec-title">2. Instantiate Client</h3>
+                    <p>Initialize the renderer inside your container blocks using your unique developer client key credentials:</p>
+                    <div class="code-block-header-bar">
+                        <span>Javascript</span>
+                        <button class="copy-code-btn" data-code="import { StudioClient } from '@3mstudio/mesh-core';
+
+const client = new StudioClient({ apiKey: 'YOUR_API_KEY' });
+const mesh = await client.models.generate({
+  prompt: 'neon glass obelisk',
+  polyLimit: 25000
+});">Copy</button>
+                    </div>
+                    <pre><code class="language-javascript">import { StudioClient } from '@3mstudio/mesh-core';
+
+const client = new StudioClient({ apiKey: 'YOUR_API_KEY' });
+const mesh = await client.models.generate({
+  prompt: 'neon glass obelisk',
+  polyLimit: 25000
+});</code></pre>
+                </div>
+
+                <!-- Inside Page: Auth -->
+                <div class="doc-pane-block" id="doc-pane-auth" style="display:none;">
+                    <h1 class="doc-title">Authentication Endpoints</h1>
+                    <p class="doc-lead">All requests dispatched to our rendering nodes must carry your unique project token header keys.</p>
+                    
+                    <p>Integrate authentication keys in your request headers as follows:</p>
+                    <pre><code class="language-http">Authorization: Bearer 3m_studio_live_xxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+                    
+                    <div class="alert-box warning-box">
+                        <strong>IMPORTANT:</strong> Protect your secret API credentials. Never commit developer keys into public git repositories or expose client-side code blocks in production builds.
+                    </div>
+                </div>
+
+                <!-- Inside Page: Meshes -->
+                <div class="doc-pane-block" id="doc-pane-meshes" style="display:none;">
+                    <h1 class="doc-title">Mesh Generation API Reference</h1>
+                    <p class="doc-lead">Endpoints to trigger procedural mesh sculpting workflows on remote cluster GPU nodes.</p>
+                    
+                    <p><strong>Endpoint:</strong> <code>POST https://api.3mstudio.design/v2/meshes</code></p>
+                    
+                    <h3 class="doc-sec-title">Request Body Parameters</h3>
+                    <table class="docs-ref-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>prompt</code></td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>Description of visual meshes (e.g. "obsidian cube").</td>
+                            </tr>
+                            <tr>
+                                <td><code>roughness</code></td>
+                                <td>Float</td>
+                                <td>No</td>
+                                <td>Material roughness index between 0.0 and 1.0.</td>
+                            </tr>
+                            <tr>
+                                <td><code>maxVertices</code></td>
+                                <td>Integer</td>
+                                <td>No</td>
+                                <td>Poly-count limit parameters (default is 50000).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Inside Page: Audio -->
+                <div class="doc-pane-block" id="doc-pane-audio" style="display:none;">
+                    <h1 class="doc-title">Spatial Sound Reference</h1>
+                    <p class="doc-lead">Synthesize spatialized ambient soundtracks aligned with physical boundary limits.</p>
+                    
+                    <p><strong>Endpoint:</strong> <code>POST https://api.3mstudio.design/v2/audio/synthesize</code></p>
+                    
+                    <p>Pass boundary dimensions, listener vectors, and mesh material tags to retrieve custom synthesized audio loops instantly.</p>
+                </div>
+
+                <!-- Inside Page: Interactive API Key Tool -->
+                <div class="doc-pane-block" id="doc-pane-api-generator" style="display:none;">
+                    <h1 class="doc-title">Dynamic API Key Simulator</h1>
+                    <p class="doc-lead">Create and manage your workspace credentials for local testing workflows immediately below.</p>
+                    
+                    <div class="api-key-manager-card">
+                        <h4 class="api-card-sec-title">Workspace Keys</h4>
+                        <p class="api-card-desc">Simulate creating dynamic credentials to test connection logs immediately.</p>
+                        
+                        <div class="api-key-display-row">
+                            <input type="text" id="simulated-key-box" readonly value="Click 'Generate Key' to create token...">
+                            <button class="btn btn-outline" id="btn-copy-sim-key">Copy</button>
+                        </div>
+                        <button class="btn btn-primary" id="btn-generate-sim-key">Generate Live Token</button>
+                        
+                        <div class="api-key-logs" style="margin-top: 1.5rem;">
+                            <h5>Simulated Log Outputs</h5>
+                            <pre><code class="language-bash" id="api-simulator-console">Simulator Idle. Waiting to launch cluster token...</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </template>
+
+
+    <!-- PAGE 8: PRIVACY POLICY PAGE -->
+    <template id="page-privacy">
+        <section class="legal-section">
+            <div class="section-container max-w-3xl">
+                <span class="legal-date">Last Updated: July 5, 2026</span>
+                <h1 class="legal-title">Privacy Policy</h1>
+                <p class="legal-intro">At 3M Studio, we prioritize protecting your intellectual property, corporate mesh datasets, and personal credentials.</p>
+                
+                <h2 class="legal-sec-title">1. Information We Collect</h2>
+                <p>We process account credentials (names, company domains) and user prompts sent to our server blocks to render your requested 3D model geometries. All mesh vertices, audio compositions, and texture maps generated on our systems are owned entirely by the creators.</p>
+                
+                <h2 class="legal-sec-title">2. Processing Prompt Data</h2>
+                <p>User queries used to trigger neural render processes are filtered and cached for optimization. We do not sell or monetize your prompt data or mesh outputs to external model groups.</p>
+                
+                <h2 class="legal-sec-title">3. Cookies &amp; Storage</h2>
+                <p>We leverage local storage to save your preference selections (such as light or dark themes) and routing histories. We do not load tracking trackers.</p>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 9: TERMS OF SERVICE PAGE -->
+    <template id="page-terms">
+        <section class="legal-section">
+            <div class="section-container max-w-3xl">
+                <span class="legal-date">Effective Date: July 5, 2026</span>
+                <h1 class="legal-title">Terms of Service</h1>
+                <p class="legal-intro">Please read these conditions carefully before accessing the rendering pipeline nodes owned by 3M Studio Inc.</p>
+                
+                <h2 class="legal-sec-title">1. Usage &amp; Access Tiers</h2>
+                <p>By initializing workspace keys on our platforms, you agree to comply with our rate-limit guidelines. You are solely responsible for all API requests dispatched carrying your secret authorization headers.</p>
+                
+                <h2 class="legal-sec-title">2. Rendering Assets Ownership</h2>
+                <p>All materials, polygon shapes, and wave files produced inside 3M Studio are owned entirely by you. We maintain no copyright claims or licensing permissions over user creations.</p>
+                
+                <h2 class="legal-sec-title">3. Account Cancellations</h2>
+                <p>You can cancel subscription tiers at any stage. Remaining rendering credits will persist active until your active monthly billing period closes.</p>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 10: 404 PAGE -->
+    <template id="page-404">
+        <section class="error-page-section">
+            <div class="section-container align-center">
+                <div class="error-visual">
+                    <div class="orbiting-nodes">
+                        <div class="center-star">404</div>
+                        <div class="orbiting-planet planet-1"></div>
+                        <div class="orbiting-planet planet-2"></div>
+                    </div>
+                </div>
+                <h1 class="error-title">Coordinate System Lost</h1>
+                <p class="error-subtitle">The path coordinate you requested is not indexed on our edge CDN. It may have been garbage-collected or moved.</p>
+                <a href="#/" class="btn btn-primary btn-large">Return to Coordinate Grid</a>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 11: MAINTENANCE PAGE -->
+    <template id="page-maintenance">
+        <section class="maintenance-section">
+            <div class="section-container">
+                <div class="maintenance-header align-center">
+                    <div class="maintenance-pulse-badge">SYSTEM UPGRADE ACTIVE</div>
+                    <h1 class="maintenance-title">Calibrating Render Clusters</h1>
+                    <p class="maintenance-subtitle">We are currently upgrading server architectures to v2.4 to enable direct WebGPU compute lanes. Live workspaces will resume shortly.</p>
+                </div>
+
+                <div class="status-dashboard-mock">
+                    <h3 class="mock-dash-title">GPU Node Status Matrix</h3>
+                    <div class="status-grid">
+                        <div class="status-card">
+                            <span class="status-card-label">Node US-East</span>
+                            <span class="status-card-val status-yellow">Upgrading</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="status-card-label">Node EU-West</span>
+                            <span class="status-card-val status-yellow">Upgrading</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="status-card-label">Global CDN</span>
+                            <span class="status-card-val status-green">Online</span>
+                        </div>
+                    </div>
+                    <div class="upgrade-progress-row">
+                        <div class="upgrade-text"><span>Database Migration</span><span>78% Complete</span></div>
+                        <div class="upgrade-progress-bar"><div class="progress-fill" style="width: 78%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <!-- PAGE 12: COMING SOON PAGE -->
+    <template id="page-coming-soon">
+        <section class="coming-soon-section">
+            <div class="section-container align-center">
+                <span class="coming-soon-badge">LAUNCHING SOON</span>
+                <h1 class="coming-soon-title">Neural Mesh Textures 4K</h1>
+                <p class="coming-soon-subtitle">Our text-to-material shader pipeline is wrapping up beta testing. Get early credentials by signing up to our waitlist.</p>
+
+                <!-- Countdown Timer -->
+                <div class="countdown-grid">
+                    <div class="countdown-card">
+                        <span class="countdown-num" id="timer-days">07</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-card">
+                        <span class="countdown-num" id="timer-hours">18</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-card">
+                        <span class="countdown-num" id="timer-mins">42</span>
+                        <span class="countdown-label">Mins</span>
+                    </div>
+                    <div class="countdown-card">
+                        <span class="countdown-num" id="timer-secs">59</span>
+                        <span class="countdown-label">Secs</span>
+                    </div>
+                </div>
+
+                <!-- Waitlist Form -->
+                <div class="coming-soon-form-wrapper">
+                    <form id="waitlist-form" class="waitlist-input-group" novalidate>
+                        <input type="email" id="waitlist-email" required placeholder="Enter corporate email">
+                        <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                    </form>
+                    <span class="field-error" id="err-waitlist-email" style="display:block; margin-top:0.5rem; text-align:center;"></span>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- Main JavaScript Modules Link -->
+    <script src="script.js"></script>
+</body>
+</html>
