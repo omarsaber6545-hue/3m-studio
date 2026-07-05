@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Authenticate | 3M Studio' %></title>
+    
+    <!-- Core Style Tokens -->
+    <link rel="stylesheet" href="/assets/css/variables.css">
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+    <link rel="stylesheet" href="/assets/css/animations.css">
+    <link rel="stylesheet" href="/assets/css/utilities.css">
+    
+    <link rel="stylesheet" id="theme-style" href="/assets/css/themes/dark.css">
+    <link rel="stylesheet" id="rtl-style" href="/assets/css/themes/rtl.css" disabled>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 50%), 
+                        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.12), transparent 45%), 
+                        #0b0f19;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen Loader -->
+    <%- include('../partials/loader') %>
+    
+    <!-- Global Toasts -->
+    <%- include('../partials/toast') %>
+
+    <!-- Auth content wrapper -->
+    <div style="width: 100%; max-width: 480px;">
+        <%- body %>
+    </div>
+
+    <!-- Core preferences scripts -->
+    <script src="/assets/js/core/storage.js"></script>
+    <script src="/assets/js/core/theme.js"></script>
+    <script src="/assets/js/core/language.js"></script>
+    <script src="/assets/js/ui/toast.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<div id="cookie-banner" style="position: fixed; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-color); padding: 1.25rem 1.5rem; border-radius: 12px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; z-index: 999; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); max-width: 800px; margin: 0 auto; transform: translateY(150px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; text-align: left; flex: 1;">
+        🍪 We use cookies to enhance your experience, maintain session tokens, and analyze AI performance metrics. By accepting, you consent to our use of cookies.
+    </div>
+    <div style="display: flex; gap: 0.75rem; flex-shrink: 0;">
+        <button id="btn-cookie-accept" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 6px;">Accept</button>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('btn-cookie-accept');
+        
+        if (!localStorage.getItem('3m_cookies_accepted')) {
+            setTimeout(() => {
+                banner.style.transform = 'translateY(0)';
+                banner.style.opacity = '1';
+            }, 1000);
+        }
+        
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', () => {
+                localStorage.setItem('3m_cookies_accepted', 'true');
+                banner.style.transform = 'translateY(150px)';
+                banner.style.opacity = '0';
+            });
+        }
+    });
+</script>

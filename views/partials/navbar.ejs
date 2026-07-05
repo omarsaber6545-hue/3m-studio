@@ -1,0 +1,110 @@
+<header style="height: 64px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 998; width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+    <div style="max-width: 1200px; margin: 0 auto; width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: relative; box-sizing: border-box;">
+        <!-- Logo -->
+        <a href="/" style="display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--text-primary); font-weight: 800; font-size: 1.15rem; font-family: 'Outfit', sans-serif; letter-spacing: 0.05em;">
+            <span style="font-size: 1.4rem; line-height: 1;">🌀</span> 
+            <span style="background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.6)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">3M Studio</span>
+        </a>
+
+        <!-- Middle Navigation Links -->
+        <nav style="display: flex; align-items: center; gap: 1.75rem; font-size: 0.85rem; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;">
+            <a href="/" style="text-decoration: none; color: var(--text-secondary); transition: color 0.2s;">Home</a>
+            <!-- Mega menu toggle -->
+            <button id="btn-mega-menu" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.85rem; font-weight: 600; font-family: inherit; display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 0;">
+                AI Studio <span style="font-size: 0.6rem; transition: transform 0.2s;" id="mega-arrow">▼</span>
+            </button>
+            <a href="/pages/pricing" style="text-decoration: none; color: var(--text-secondary); transition: color 0.2s;">Pricing</a>
+            <a href="/pages/about" style="text-decoration: none; color: var(--text-secondary); transition: color 0.2s;">About</a>
+        </nav>
+
+        <!-- Right Side Widgets -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; position: relative;">
+            <!-- Cmd+K shortcut trigger button -->
+            <button id="btn-search-trigger" style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-weight: 500; transition: border-color 0.2s;">
+                <span>🔍 Search</span>
+                <kbd style="background: rgba(255,255,255,0.06); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem; font-family: monospace; border: 1px solid var(--border-color);">⌘K</kbd>
+            </button>
+            
+            <%- include('./theme-switcher') %>
+            <%- include('./language-switcher') %>
+            
+            <!-- Notifications drop container -->
+            <div style="position: relative;">
+                <button id="btn-notification-trigger" style="background: none; border: none; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; width: 36px; height: 36px; outline: none;">
+                    🔔
+                </button>
+                <%- include('./notification-panel') %>
+            </div>
+
+            <!-- Profile Badge -->
+            <%- include('./profile-menu') %>
+        </div>
+
+        <!-- Mount Mega Menu drop down overlay -->
+        <%- include('./mega-menu') %>
+    </div>
+</header>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const megaBtn = document.getElementById('btn-mega-menu');
+        const megaMenu = document.getElementById('mega-menu');
+        const megaArrow = document.getElementById('mega-arrow');
+        const searchBtn = document.getElementById('btn-search-trigger');
+        const searchModal = document.getElementById('search-modal');
+        const notifBtn = document.getElementById('btn-notification-trigger');
+        const notifPanel = document.getElementById('notification-panel');
+
+        if (megaBtn && megaMenu) {
+            megaBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = megaMenu.style.display === 'none' || !megaMenu.style.display;
+                if (isHidden) {
+                    megaMenu.style.display = 'block';
+                    setTimeout(() => {
+                        megaMenu.style.transform = 'translateY(0)';
+                        megaMenu.style.opacity = '1';
+                        megaArrow.style.transform = 'rotate(180deg)';
+                    }, 50);
+                } else {
+                    closeMegaMenu();
+                }
+            });
+            
+            document.addEventListener('click', () => {
+                closeMegaMenu();
+            });
+        }
+
+        function closeMegaMenu() {
+            if (megaMenu && megaMenu.style.display === 'block') {
+                megaMenu.style.transform = 'translateY(-10px)';
+                megaMenu.style.opacity = '0';
+                megaArrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    megaMenu.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        if (searchBtn && searchModal) {
+            searchBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                searchModal.style.display = 'flex';
+                const input = document.getElementById('global-search-input');
+                if (input) input.focus();
+            });
+        }
+
+        if (notifBtn && notifPanel) {
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifPanel.style.display = notifPanel.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            document.addEventListener('click', () => {
+                if (notifPanel) notifPanel.style.display = 'none';
+            });
+        }
+    });
+</script>

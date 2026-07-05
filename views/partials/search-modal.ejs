@@ -1,0 +1,107 @@
+<div id="search-modal" style="display: none; position: fixed; inset: 0; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; padding: 2rem;">
+    <div style="width: 100%; max-width: 600px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column;">
+        <!-- Input Header -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <span style="font-size: 1.25rem; line-height: 1;">🔍</span>
+            <input type="text" id="global-search-input" placeholder="Search tools, documentation, settings... (e.g. chat)" style="flex: 1; background: none; border: none; color: var(--text-primary); font-size: 1rem; outline: none; font-family: inherit;">
+            <button id="btn-search-close" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; line-height: 1; padding: 0.25rem;">&times;</button>
+        </div>
+        
+        <!-- Results Container -->
+        <div id="search-results-list" style="max-height: 380px; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 0.25rem; padding-left: 0.5rem;">Suggested Tools</div>
+            
+            <a href="/pages/ai/chat" class="search-result-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; color: var(--text-primary); transition: background 0.2s; border: 1px solid transparent;">
+                <span style="font-size: 1.25rem; line-height: 1;">💬</span>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">AI Chat Workspace</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Conversational chat engine with provider settings</div>
+                </div>
+            </a>
+            
+            <a href="/pages/ai/image-generator" class="search-result-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; color: var(--text-primary); transition: background 0.2s; border: 1px solid transparent;">
+                <span style="font-size: 1.25rem; line-height: 1;">🎨</span>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">AI Image Generator</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Synthesize high resolution graphics from prompt strings</div>
+                </div>
+            </a>
+            
+            <a href="/pages/ai/code-generator" class="search-result-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; color: var(--text-primary); transition: background 0.2s; border: 1px solid transparent;">
+                <span style="font-size: 1.25rem; line-height: 1;">💻</span>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">AI Code Copilot</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Procedural syntax compiler and debug sandbox</div>
+                </div>
+            </a>
+            
+            <!-- Empty state -->
+            <div id="search-empty-state" style="display: none; padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                No matching tools or pages found.
+            </div>
+        </div>
+        
+        <!-- Navigation Legend Footer -->
+        <div style="padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">
+            <span>↑↓ to navigate &bull; Enter to select</span>
+            <span>Esc to close</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const searchModal = document.getElementById('search-modal');
+        const searchInput = document.getElementById('global-search-input');
+        const closeBtn = document.getElementById('btn-search-close');
+        const resultItems = document.querySelectorAll('.search-result-item');
+        const emptyState = document.getElementById('search-empty-state');
+        
+        // Ctrl+K key shortcut to open modal
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                if (searchModal) {
+                    searchModal.style.display = 'flex';
+                    if (searchInput) {
+                        searchInput.value = '';
+                        searchInput.focus();
+                    }
+                    filterItems('');
+                }
+            }
+            if (e.key === 'Escape' && searchModal && searchModal.style.display === 'flex') {
+                searchModal.style.display = 'none';
+            }
+        });
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                searchModal.style.display = 'none';
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                filterItems(e.target.value.toLowerCase().trim());
+            });
+        }
+        
+        function filterItems(query) {
+            let matchCount = 0;
+            resultItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'flex';
+                    matchCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (emptyState) {
+                emptyState.style.display = matchCount === 0 ? 'block' : 'none';
+            }
+        }
+    });
+</script>

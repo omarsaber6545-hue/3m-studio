@@ -1,0 +1,57 @@
+<div id="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 9999; max-width: 360px; pointer-events: none;"></div>
+
+<script>
+    class ToastManager {
+        show(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                padding: 0.85rem 1.25rem;
+                border-radius: 8px;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid ${type === 'success' ? 'rgba(16, 185, 129, 0.4)' : (type === 'error' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(139, 92, 246, 0.4)')};
+                color: #ffffff;
+                font-size: 0.85rem;
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                pointer-events: auto;
+            `;
+
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '🟢';
+            if (type === 'error') icon = '🔴';
+
+            toast.innerHTML = `
+                <span style="font-size: 0.9rem; line-height: 1;">${icon}</span>
+                <span style="flex: 1; font-weight: 500;">${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 0.25rem; font-size: 1rem; line-height: 1; transition: color 0.2s;">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Animation entrance
+            requestAnimationFrame(() => {
+                toast.style.transform = 'translateY(0) scale(1)';
+                toast.style.opacity = '1';
+            });
+
+            // Dismiss timer
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-20px) scale(0.95)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    }
+    window.toasts = new ToastManager();
+</script>
