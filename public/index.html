@@ -81,9 +81,9 @@
     <!-- 3. Announcement Bar -->
     <section class="announcement-bar" id="top-announcement" role="region" aria-label="Announcement">
         <div class="announcement-content">
-            <span class="announcement-badge">NEW</span>
-            <span class="announcement-text" id="rotating-announcement-text">Neural Generator v2.4 is officially live. Explore 4K mesh textures instantly.</span>
-            <a href="#/blog" class="announcement-link" aria-label="Read update details">Read Update &rarr;</a>
+            <span class="announcement-badge">LAUNCHING SOON</span>
+            <span class="announcement-text">Neural Studio Pro launches in: <span id="announcement-countdown" style="font-family:var(--font-mono); font-weight:var(--weight-bold); color:var(--color-amber);">07:18:42:59</span></span>
+            <a href="#/coming-soon" class="announcement-link" aria-label="Read update details">Get Early Access &rarr;</a>
         </div>
         <button class="announcement-close" id="close-announcement" aria-label="Close Announcement">&times;</button>
     </section>
@@ -536,7 +536,6 @@
                             <!-- Visual Workspace inside Mockup -->
                             <div class="mockup-workspace-area">
                                 <div class="mockup-viewport" id="mockup-render-viewport">
-                                    <!-- Animated Mesh Graphic (Procedural CSS) -->
                                     <div class="mockup-3d-gizmo">
                                         <div class="gizmo-ring ring-1"></div>
                                         <div class="gizmo-ring ring-2"></div>
@@ -592,7 +591,6 @@
                 <h4 class="trusted-title">COMPATIBLE WITH GLOBAL WORKFLOWS</h4>
                 <div class="logos-slider-track">
                     <div class="logos-slider-content">
-                        <!-- Company SVGs simulated -->
                         <span class="logo-item-text"><span class="logo-bullet">■</span> VERCEL</span>
                         <span class="logo-item-text"><span class="logo-bullet">▲</span> STRIPE</span>
                         <span class="logo-item-text"><span class="logo-bullet">◆</span> LINEAR</span>
@@ -610,7 +608,7 @@
             </div>
         </section>
 
-        <!-- Feature Grid -->
+        <!-- Feature Grid (12 Cards) -->
         <section class="features-section">
             <div class="section-container">
                 <div class="section-header align-center">
@@ -648,6 +646,100 @@
                         <h3 class="feature-card-title">Fast Edge CDN Pipeline</h3>
                         <p class="feature-card-text">Publish scenes directly to local sub-nodes. Optimizes geometry sizes on the fly to fit mobile devices, laptops, and XR headsets.</p>
                     </div>
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Neural Texturing Core</h3>
+                        <p class="feature-card-text">Bake complex physically based rendering (PBR) materials, height coordinates, and refraction maps dynamically.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon pink">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Binaural Collision Mapping</h3>
+                        <p class="feature-card-text">Dynamic sound wave rendering. Triggers realistic audio responses as mesh objects collide or bounce in virtual stages.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">USDZ/gltf Optimizers</h3>
+                        <p class="feature-card-text">Export fully optimized USDZ pipelines built for high-end Vision Pro devices and Apple AR environments.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon amber">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Multi-modal Translators</h3>
+                        <p class="feature-card-text">Translate natural language requests into complex shader values, dynamic light states, and physics coordinates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">WebGPU Shader Injection</h3>
+                        <p class="feature-card-text">Inject customized WebGPU calculations directly into the frame pipeline for custom visual render steps.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon pink">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Level-Of-Detail AutoScaler</h3>
+                        <p class="feature-card-text">Intelligent LOD optimization. Automatically scales poly counts down or up depending on device frame rendering capabilities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Git Version Scening</h3>
+                        <p class="feature-card-text">Full version timeline tracking. Commit changes, tag releases, and roll back layout edits with standard Git operations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon amber">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <h3 class="feature-card-title">Edge Load Analytics</h3>
+                        <p class="feature-card-text">Real-time charts tracker. Monitor user interaction points, frame rates, assets bandwidth download rates in one window.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Studio Preview -->
+        <section class="features-section" id="ai-studio-preview" style="background-color: var(--bg-secondary);">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">AI GENERATION STUDIO</span>
+                    <h2 class="section-title">Describe Anything. <br>Create it Instantly.</h2>
+                    <p class="section-description">Our neural synthesis engine compiles 3D assets, textures, scripts, and spatial sounds from natural text prompts.</p>
+                </div>
+                
+                <div class="ai-studio-workspace" style="display:grid; grid-template-columns:250px 1fr; gap:2rem; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:2rem; margin-top:3rem;">
+                    <!-- History Sidebar -->
+                    <div class="studio-history-sidebar" style="text-align:left; border-right:1px solid var(--border-color); padding-right:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+                        <h4 style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); margin:0;">Prompt History</h4>
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;" id="home-ai-history-list">
+                            <div style="font-size:0.8rem; padding:0.5rem; border-radius:6px; background:rgba(255,255,255,0.03); cursor:pointer;">📦 Obsidian Sphere mesh</div>
+                            <div style="font-size:0.8rem; padding:0.5rem; border-radius:6px; cursor:pointer;">🎵 Cyberpunk ambient beat</div>
+                            <div style="font-size:0.8rem; padding:0.5rem; border-radius:6px; cursor:pointer;">📄 WebGL rotation matrix</div>
+                        </div>
+                    </div>
+                    <!-- Main Playground -->
+                    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                        <div class="interactive-prompt-container" style="display:flex; gap:0.5rem; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); border-radius:8px; padding:0.5rem;">
+                            <input type="text" id="home-ai-prompt-input" placeholder="Type prompt: 'Design a glass cyberpunk drone'..." style="flex:1; background:none; border:none; color:var(--text-primary); outline:none; padding:0.5rem;">
+                            <button class="btn btn-primary" id="btn-home-ai-generate">Generate</button>
+                        </div>
+                        <!-- Output Card -->
+                        <div class="studio-output-display" style="border:1px solid var(--border-color); border-radius:8px; background:var(--bg-secondary); padding:2rem; min-height:220px; display:flex; align-items:center; justify-content:center; position:relative;">
+                            <div id="home-ai-output-status" style="font-size:0.9rem; color:var(--text-muted);">Describe an asset above and click Generate to see neural synthesis in real-time.</div>
+                            <div id="home-ai-output-result" style="display:none; width:100%; text-align:left;">
+                                <h4 style="margin: 0 0 0.5rem 0; color:var(--color-purple); font-size:1.1rem;" id="home-ai-result-title">Generated Asset</h4>
+                                <pre style="background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-family:var(--font-mono); font-size:0.8rem; overflow-x:auto; margin:0;" id="home-ai-result-content"></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -670,7 +762,6 @@
                     <div class="demo-workspace">
                         <div class="demo-preview-column">
                             <div class="demo-interactive-stage" id="demo-stage-view">
-                                <!-- Interactive Elements Loaded dynamically by script.js -->
                                 <div class="stage-shape-render sphere-theme"></div>
                             </div>
                         </div>
@@ -700,6 +791,121 @@
                             </div>
                             <button class="btn btn-primary w-full" id="demo-bake-btn">Bake Mesh Geometry</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Templates Showcase -->
+        <section class="features-section" id="templates-showcase" style="background-color: var(--bg-secondary);">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">READY TO DEPLOY TEMPLATES</span>
+                    <h2 class="section-title">Kickstart Your Spatial Scene</h2>
+                    <p class="section-description">Choose from our curated collection of verified 3D assets, sound fields, and shader matrices.</p>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:2rem; margin-top:3rem;">
+                    <!-- Filters and Search -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:2rem; flex-wrap:wrap;">
+                        <div class="template-categories" style="display:flex; gap:0.5rem;" id="home-template-filters">
+                            <button class="btn btn-outline btn-small active" data-filter="all">All Templates</button>
+                            <button class="btn btn-outline btn-small" data-filter="model">3D Models</button>
+                            <button class="btn btn-outline btn-small" data-filter="audio">Sound Fields</button>
+                            <button class="btn btn-outline btn-small" data-filter="code">GLSL Scripts</button>
+                        </div>
+                        <input type="search" id="home-template-search" placeholder="Search templates..." style="padding:0.4rem 1rem; border-radius:100px; border:1px solid var(--border-color); background:rgba(0,0,0,0.2); color:var(--text-primary); outline:none; font-size:0.85rem; width:220px;">
+                    </div>
+                    <!-- Grid -->
+                    <div class="grid grid-cols-3" id="home-templates-grid" style="margin-top:1rem;">
+                        <!-- Templates rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="features-section" id="pricing-showcase">
+            <div class="section-container">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">COMMERCIAL SUBSCRIPTION PLANS</span>
+                    <h2 class="section-title">Pricing Tailored to Your Output</h2>
+                    <p class="section-description">Switch yearly to save 20% on visual rendering pipeline quotas.</p>
+                    
+                    <div style="display:flex; justify-content:center; align-items:center; gap:1rem; margin-top:2rem;">
+                        <span>Monthly Billing</span>
+                        <label class="theme-switch" style="position:relative; display:inline-block; width:50px; height:26px;">
+                            <input type="checkbox" id="home-billing-toggle" style="opacity:0; width:0; height:0;">
+                            <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:var(--surface-primary); border:1px solid var(--border-color); transition:0.4s; border-radius:34px;"></span>
+                        </label>
+                        <span>Yearly Billing (Save 20%)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4" style="margin-top:3rem; gap:1.5rem; align-items:stretch;">
+                    <!-- 1. Free -->
+                    <div class="pricing-card" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:2rem; display:flex; flex-direction:column; justify-content:space-between; text-align:left;">
+                        <div>
+                            <h3 style="font-size:1.25rem; font-weight:600; margin:0;">Free</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Ideal for hobbyists.</p>
+                            <div style="font-size:2.5rem; font-family:var(--font-heading); font-weight:700; margin:1.5rem 0;" class="tier-price" data-monthly="$0" data-yearly="$0">$0</div>
+                            <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem; color:var(--text-secondary); margin-bottom:2rem;">
+                                <li>✓ 10 active scenes</li>
+                                <li>✓ 100 MB CDN capacity</li>
+                                <li>✓ Standard GPU queue</li>
+                                <li>✗ Advanced shader bakes</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline w-full btn-small">Get Started</button>
+                    </div>
+
+                    <!-- 2. Starter -->
+                    <div class="pricing-card" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:2rem; display:flex; flex-direction:column; justify-content:space-between; text-align:left;">
+                        <div>
+                            <h3 style="font-size:1.25rem; font-weight:600; margin:0;">Starter</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">For single developers.</p>
+                            <div style="font-size:2.5rem; font-family:var(--font-heading); font-weight:700; margin:1.5rem 0;" class="tier-price" data-monthly="$19" data-yearly="$15">$19</div>
+                            <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem; color:var(--text-secondary); margin-bottom:2rem;">
+                                <li>✓ 50 active scenes</li>
+                                <li>✓ 1 GB CDN capacity</li>
+                                <li>✓ Fast GPU queue</li>
+                                <li>✓ Basic shader compiles</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline w-full btn-small">Subscribe</button>
+                    </div>
+
+                    <!-- 3. Pro -->
+                    <div class="pricing-card" style="background:var(--bg-secondary); border:2px solid var(--color-purple); border-radius:var(--radius-md); padding:2rem; display:flex; flex-direction:column; justify-content:space-between; text-align:left; position:relative;">
+                        <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--color-purple); color:#fff; font-size:0.65rem; font-weight:700; padding:0.25rem 0.75rem; border-radius:20px; text-transform:uppercase;">POPULAR Choice</span>
+                        <div>
+                            <h3 style="font-size:1.25rem; font-weight:600; margin:0;">Pro</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Best for small agencies.</p>
+                            <div style="font-size:2.5rem; font-family:var(--font-heading); font-weight:700; margin:1.5rem 0;" class="tier-price" data-monthly="$49" data-yearly="$39">$49</div>
+                            <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem; color:var(--text-secondary); margin-bottom:2rem;">
+                                <li>✓ Unlimited active scenes</li>
+                                <li>✓ 10 GB CDN capacity</li>
+                                <li>✓ High-priority GPU</li>
+                                <li>✓ Advanced 8K PBR baking</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary w-full btn-small">Subscribe</button>
+                    </div>
+
+                    <!-- 4. Business -->
+                    <div class="pricing-card" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:2rem; display:flex; flex-direction:column; justify-content:space-between; text-align:left;">
+                        <div>
+                            <h3 style="font-size:1.25rem; font-weight:600; margin:0;">Business</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">For full studio workflows.</p>
+                            <div style="font-size:2.5rem; font-family:var(--font-heading); font-weight:700; margin:1.5rem 0;" class="tier-price" data-monthly="$149" data-yearly="$119">$149</div>
+                            <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem; color:var(--text-secondary); margin-bottom:2rem;">
+                                <li>✓ Unlimited active scenes</li>
+                                <li>✓ 100 GB CDN capacity</li>
+                                <li>✓ Dedicated cluster node</li>
+                                <li>✓ Custom WebGPU injections</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline w-full btn-small">Subscribe</button>
                     </div>
                 </div>
             </div>
@@ -742,6 +948,52 @@
                                 <span class="user-name">Hiroshi Kajiura</span>
                                 <span class="user-role">VP of Product, Linear</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Accordion -->
+        <section class="features-section" id="faq-showcase" style="background-color: var(--bg-secondary);">
+            <div class="section-container" style="max-width:800px;">
+                <div class="section-header align-center">
+                    <span class="section-subtitle">COMMON QUESTIONS</span>
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <p class="section-description">Filter or search below to explore GPU pipelines, invoicing details, or layout parameters.</p>
+                    
+                    <input type="search" id="home-faq-search" placeholder="Search FAQ queries..." style="padding:0.6rem 1.25rem; border-radius:100px; border:1px solid var(--border-color); background:rgba(0,0,0,0.2); color:var(--text-primary); outline:none; font-size:0.85rem; width:100%; max-width:440px; margin-top:2rem;">
+                </div>
+
+                <div class="faq-accordion-list" style="margin-top:3rem; display:flex; flex-direction:column; gap:1rem; text-align:left;" id="home-faq-list">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item" style="border:1px solid var(--border-color); border-radius:8px; background:var(--bg-primary); overflow:hidden;">
+                        <button class="accordion-header" style="width:100%; padding:1.25rem; font-family:var(--font-heading); font-size:1.05rem; font-weight:600; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span>How does text-to-3D neural generation work?</span>
+                            <span class="accordion-arrow" style="transition:transform 0.3s;">▼</span>
+                        </button>
+                        <div class="accordion-content" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease-out; padding:0 1.25rem; font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">
+                            <p style="margin-bottom:1.25rem;">Our cloud engines convert text prompts into mathematical shape distributions, baking them into polygon indices and mapping high-resolution texture models in a single compilation pass.</p>
+                        </div>
+                    </div>
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item" style="border:1px solid var(--border-color); border-radius:8px; background:var(--bg-primary); overflow:hidden;">
+                        <button class="accordion-header" style="width:100%; padding:1.25rem; font-family:var(--font-heading); font-size:1.05rem; font-weight:600; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span>Can I export generated files to other modeling applications?</span>
+                            <span class="accordion-arrow" style="transition:transform 0.3s;">▼</span>
+                        </button>
+                        <div class="accordion-content" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease-out; padding:0 1.25rem; font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">
+                            <p style="margin-bottom:1.25rem;">Yes. All generated assets can be downloaded directly in industry standard glTF, OBJ, or USDZ formats ready to load inside Blender, Unreal Engine, Unity, or Cinema 4D.</p>
+                        </div>
+                    </div>
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item" style="border:1px solid var(--border-color); border-radius:8px; background:var(--bg-primary); overflow:hidden;">
+                        <button class="accordion-header" style="width:100%; padding:1.25rem; font-family:var(--font-heading); font-size:1.05rem; font-weight:600; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span>What are spatial audio composition sound fields?</span>
+                            <span class="accordion-arrow" style="transition:transform 0.3s;">▼</span>
+                        </button>
+                        <div class="accordion-content" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease-out; padding:0 1.25rem; font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">
+                            <p style="margin-bottom:1.25rem;">Instead of simple stereophonic files, sound fields package listener directions and sound emitters positions. Emitters trigger sound waves that react dynamically as they shift relative to user perspectives.</p>
                         </div>
                     </div>
                 </div>

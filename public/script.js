@@ -850,7 +850,6 @@ class App {
                 const rx = -(dy / window.innerHeight) * 15;
                 const ry = (dx / window.innerWidth) * 15;
                 
-                // Tilt the 3D frame slightly
                 const frame = parallaxBox.querySelector('.dashboard-mockup-frame');
                 if (frame) {
                     frame.style.transform = `rotateX(${5 + rx}deg) rotateY(${ry}deg)`;
@@ -868,11 +867,9 @@ class App {
                 tab.classList.add('active');
                 const selection = tab.dataset.demoTab;
 
-                // Adjust shape CSS styles dynamically
                 const shape = previewStage.querySelector('.stage-shape-render');
                 shape.className = `stage-shape-render ${selection}-theme`;
 
-                // Update Code block markup
                 const codeMockData = {
                     sphere: `{
   "engine": "CinemaRender-v3",
@@ -949,6 +946,224 @@ class App {
                 item.textContent = current.toLocaleString();
             }, 15);
         });
+
+        // 1. Announcement Countdown Timer
+        const countdownEl = document.getElementById('announcement-countdown');
+        if (countdownEl) {
+            let targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 7);
+            
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const distance = targetDate.getTime() - now;
+                if (distance < 0) {
+                    countdownEl.textContent = "00:00:00:00";
+                    return;
+                }
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const pad = (num) => String(num).padStart(2, '0');
+                countdownEl.textContent = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            };
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        // 2. AI Studio Preview
+        const homeAiPrompt = document.getElementById('home-ai-prompt-input');
+        const homeAiBtn = document.getElementById('btn-home-ai-generate');
+        const homeAiStatus = document.getElementById('home-ai-output-status');
+        const homeAiResult = document.getElementById('home-ai-output-result');
+        const homeAiContent = document.getElementById('home-ai-result-content');
+        const homeAiHistory = document.getElementById('home-ai-history-list');
+
+        if (homeAiBtn && homeAiPrompt) {
+            homeAiBtn.addEventListener('click', () => {
+                const promptVal = homeAiPrompt.value.trim();
+                if (!promptVal) {
+                    toasts.show('Please describe an asset first.', 'warning');
+                    return;
+                }
+
+                homeAiStatus.textContent = 'Analyzing prompt and generating geometry nodes...';
+                homeAiStatus.style.display = 'block';
+                homeAiResult.style.display = 'none';
+                homeAiBtn.disabled = true;
+
+                setTimeout(() => {
+                    homeAiStatus.style.display = 'none';
+                    homeAiResult.style.display = 'block';
+                    homeAiContent.textContent = '';
+                    
+                    const mockOutputs = {
+                        drone: `{\n  "object": "cyberpunk-drone",\n  "polygons": 142000,\n  "textures": ["carbon-fiber-matte", "glass-sensor-lens"],\n  "colliders": "active-box-3d",\n  "status": "ready"\n}`,
+                        sphere: `{\n  "object": "glass-refractive-sphere",\n  "polygons": 64000,\n  "refraction": 1.54,\n  "lightStates": "neon-radial-pink",\n  "status": "ready"\n}`,
+                        default: `{\n  "status": "completed",\n  "sourcePrompt": "${promptVal}",\n  "renderedAssets": 1,\n  "renderTimeMs": 420,\n  "assetUrl": "/cdn/assets/neural_node_mock.glb"\n}`
+                    };
+
+                    const selectedOutput = promptVal.toLowerCase().includes('drone') ? mockOutputs.drone : 
+                                           (promptVal.toLowerCase().includes('sphere') ? mockOutputs.sphere : mockOutputs.default);
+
+                    let charIndex = 0;
+                    const typeChar = () => {
+                        if (charIndex < selectedOutput.length) {
+                            homeAiContent.textContent += selectedOutput.charAt(charIndex);
+                            charIndex++;
+                            setTimeout(typeChar, 10);
+                        } else {
+                            homeAiBtn.disabled = false;
+                            toasts.show('Asset compilation succeeded!', 'success');
+                            
+                            const newHistoryItem = document.createElement('div');
+                            newHistoryItem.style.fontSize = '0.8rem';
+                            newHistoryItem.style.padding = '0.5rem';
+                            newHistoryItem.style.borderRadius = '6px';
+                            newHistoryItem.style.cursor = 'pointer';
+                            newHistoryItem.textContent = `⚡ ${promptVal.slice(0, 25)}${promptVal.length > 25 ? '...' : ''}`;
+                            newHistoryItem.addEventListener('click', () => {
+                                homeAiPrompt.value = promptVal;
+                            });
+                            homeAiHistory.insertBefore(newHistoryItem, homeAiHistory.firstChild);
+                        }
+                    };
+                    typeChar();
+                }, 1500);
+            });
+
+            if (homeAiHistory) {
+                homeAiHistory.querySelectorAll('div').forEach(item => {
+                    item.addEventListener('click', () => {
+                        homeAiPrompt.value = item.textContent.replace(/[📦🎵📄]/g, '').trim();
+                    });
+                });
+            }
+        }
+
+        // 3. Templates Grid rendering, search, and category filtering
+        const templatesGrid = document.getElementById('home-templates-grid');
+        const searchInput = document.getElementById('home-template-search');
+        const filterContainer = document.getElementById('home-template-filters');
+
+        if (templatesGrid) {
+            const mockTemplates = [
+                { id: 't1', title: 'Obsidian Cube Grid', category: 'model', type: '3D Mesh', stats: '24K Polys', imageText: '📦' },
+                { id: 't2', title: 'Dolby Atmos Spatial Rain', category: 'audio', type: 'Sound Field', stats: '96kHz Binaural', imageText: '🔊' },
+                { id: 't3', title: 'Matrix Ray-Trace Shader', category: 'code', type: 'WebGL Script', stats: 'WebGL2 GLSL', imageText: '⚡' },
+                { id: 't4', title: 'Cyberpunk Hover Bike', category: 'model', type: '3D Mesh', stats: '112K Polys', imageText: '📦' },
+                { id: 't5', title: 'Synthwave Night beat', category: 'audio', type: 'Sound Field', stats: '48kHz Dolby-atmos', imageText: '🔊' },
+                { id: 't6', title: 'Liquid Holographic Glass', category: 'code', type: 'WebGL Script', stats: 'WebGPU WGSL', imageText: '⚡' }
+            ];
+
+            let activeFilter = 'all';
+            let searchQuery = '';
+
+            const renderTemplates = () => {
+                const filtered = mockTemplates.filter(item => {
+                    const matchesCategory = activeFilter === 'all' || item.category === activeFilter;
+                    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                          item.type.toLowerCase().includes(searchQuery.toLowerCase());
+                    return matchesCategory && matchesSearch;
+                });
+
+                if (filtered.length === 0) {
+                    templatesGrid.innerHTML = `<div style="grid-column:1/-1; padding:3rem; text-align:center; color:var(--text-muted);">No matching templates found.</div>`;
+                    return;
+                }
+
+                templatesGrid.innerHTML = filtered.map(t => `
+                    <div class="feature-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%; text-align:left; background:var(--bg-secondary); border:1px solid var(--border-color); padding:1.5rem; border-radius:var(--radius-md);">
+                        <div>
+                            <div style="font-size:2rem; margin-bottom:1rem;">${t.imageText}</div>
+                            <span style="font-size:0.75rem; font-weight:700; color:var(--color-purple); text-transform:uppercase;">${t.type}</span>
+                            <h4 style="font-size:1.1rem; font-weight:600; margin:0.25rem 0 0.5rem 0;">${t.title}</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">${t.stats}</p>
+                        </div>
+                        <button class="btn btn-outline btn-small w-full" style="margin-top:1.5rem;" onclick="toasts.show('Previewing template: ${t.title}...', 'info')">Preview Template</button>
+                    </div>
+                `).join('');
+            };
+
+            renderTemplates();
+
+            if (filterContainer) {
+                filterContainer.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        filterContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        activeFilter = btn.dataset.filter;
+                        renderTemplates();
+                    });
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    renderTemplates();
+                });
+            }
+        }
+
+        // 4. Pricing monthly/yearly switcher
+        const billingToggle = document.getElementById('home-billing-toggle');
+        if (billingToggle) {
+            billingToggle.addEventListener('change', (e) => {
+                const isYearly = e.target.checked;
+                document.querySelectorAll('.tier-price').forEach(el => {
+                    el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+                });
+                toasts.show(isYearly ? 'Switched to Yearly pricing (20% discount applied).' : 'Switched to Monthly pricing.', 'info');
+            });
+        }
+
+        // 5. FAQ accordions and FAQ search filters
+        const faqSearchInput = document.getElementById('home-faq-search');
+        const faqItems = document.querySelectorAll('#home-faq-list .accordion-item');
+
+        if (faqItems.length > 0) {
+            faqItems.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                const content = item.querySelector('.accordion-content');
+                const arrow = item.querySelector('.accordion-arrow');
+
+                if (header && content) {
+                    header.addEventListener('click', () => {
+                        faqItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.querySelector('.accordion-content').style.maxHeight = null;
+                                otherItem.querySelector('.accordion-arrow').style.transform = 'rotate(0deg)';
+                            }
+                        });
+
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                            arrow.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            arrow.style.transform = 'rotate(180deg)';
+                        }
+                    });
+                }
+            });
+
+            if (faqSearchInput) {
+                faqSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    faqItems.forEach(item => {
+                        const title = item.querySelector('.accordion-header').textContent.toLowerCase();
+                        const answer = item.querySelector('.accordion-content').textContent.toLowerCase();
+                        
+                        if (title.includes(query) || answer.includes(query)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
 
         // Waitlists validations on home
         new FormValidator('newsletter-form', 'Subscription confirmed. Welcome aboard!');
