@@ -1,0 +1,37 @@
+/* Entrance animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp var(--transition-slow) forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn var(--transition-normal) forwards;
+}
+
+.glow-pulsing {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
