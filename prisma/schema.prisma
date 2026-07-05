@@ -10,20 +10,16 @@ generator client {
 model User {
   id              String        @id @default(uuid())
   username        String        @unique
-  displayName     String?
   email           String        @unique
   passwordHash    String
-  avatar          String?
-  bio             String?
-  country         String?
-  language        String        @default("en")
-  theme           String        @default("dark")
   emailVerified   Boolean       @default(false)
   roleId          String
   role            Role          @relation(fields: [roleId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   
+  // Relations
+  profile         Profile?
   sessions        Session[]
   projects        Project[]
   folders         Folder[]
@@ -36,7 +32,31 @@ model User {
   payments        Payment[]
   supportTickets  SupportTicket[]
   activityLogs    ActivityLog[]
+  recentActivities RecentActivity[]
+  aiHistories     AIHistory[]
   feedbacks       Feedback[]
+}
+
+model Profile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName     String?
+  avatar          String?
+  coverImage      String?
+  bio             String?
+  location        String?
+  website         String?
+  timezone        String   @default("UTC")
+  country         String?
+  language        String   @default("en")
+  theme           String   @default("dark") // "dark", "light", "system"
+  accentColor     String   @default("#8B5CF6") // purple default
+  uiDensity       String   @default("comfortable") // "compact", "comfortable", "loose"
+  borderRadius    String   @default("8px")
+  animationSpeed  Float    @default(1.0)
+  fontSize        String   @default("medium") // "small", "medium", "large"
+  updatedAt       DateTime @updatedAt
 }
 
 model Session {
@@ -50,7 +70,7 @@ model Session {
 
 model Role {
   id          String       @id @default(uuid())
-  name        String       @unique
+  name        String       @unique // "ADMIN", "USER"
   permissions Permission[]
   users       User[]
 }
@@ -111,20 +131,20 @@ model File {
   updatedAt DateTime @updatedAt
 }
 
-model Template {
-  id        String   @id @default(uuid())
-  title     String
-  type      String
-  category  String
-  content   String
-  createdAt DateTime @default(now())
+model PromptTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // "chat", "image", "code"
+  promptText  String
+  description String?
+  createdAt   DateTime @default(now())
 }
 
 model Favorite {
   id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String   // "project" or "file"
+  type      String   // "project" or "file" or "prompt"
   targetId  String
   createdAt DateTime @default(now())
 }
@@ -132,53 +152,11 @@ model Favorite {
 model Notification {
   id        String   @id @default(uuid())
   title     String
+  content   String?
   type      String   @default("info")
   read      Boolean  @default(false)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-}
-
-model Message {
-  id          String   @id @default(uuid())
-  content     String
-  senderId    String
-  recipientId String
-  chatId      String
-  createdAt   DateTime @default(now())
-}
-
-model BlogPost {
-  id        String    @id @default(uuid())
-  title     String
-  category  String
-  readTime  String
-  author    String
-  body      String
-  tags      String[]
-  comments  Comment[]
-  createdAt DateTime  @default(now())
-}
-
-model Comment {
-  id         String   @id @default(uuid())
-  content    String
-  authorName String
-  blogPostId String
-  blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-}
-
-model Category {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  type      String   // "project", "template", etc.
-  createdAt DateTime @default(now())
-}
-
-model Tag {
-  id        String   @id @default(uuid())
-  name      String   @unique
   createdAt DateTime @default(now())
 }
 
@@ -260,11 +238,24 @@ model AuditLog {
   createdAt DateTime @default(now())
 }
 
-model Analytics {
+model RecentActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // e.g., "GENERATED_IMAGE", "CREATED_PROJECT"
+  details   String?
+  timestamp DateTime @default(now())
+}
+
+model AIHistory {
   id          String   @id @default(uuid())
-  metricName  String
-  metricValue Float
-  timestamp   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toolType    String   // "chat", "image", "video", "code", etc.
+  prompt      String
+  response    String?  // Text content or asset link
+  tokensUsed  Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
 model Feedback {
