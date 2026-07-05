@@ -527,7 +527,8 @@ class Router {
             '#/privacy': 'page-privacy',
             '#/terms': 'page-terms',
             '#/coming-soon': 'page-coming-soon',
-            '#/maintenance': 'page-maintenance'
+            '#/maintenance': 'page-maintenance',
+            '#/ai-chat': 'page-ai-chat'
         };
 
         const templateId = routes[hash];
@@ -797,6 +798,8 @@ class App {
         } else if (hash === '#/coming-soon') {
             this.initComingSoonCountdown();
             new FormValidator('waitlist-form', 'Added successfully. You will receive credentials shortly.');
+        } else if (hash === '#/ai-chat') {
+            this.initAiChatLogic();
         }
     }
 
@@ -1166,7 +1169,705 @@ class App {
         }
 
         // Waitlists validations on home
+        // Waitlists validations on home
         new FormValidator('newsletter-form', 'Subscription confirmed. Welcome aboard!');
+    }
+
+    initAiChatLogic() {
+        const conversationsKey = '3m_studio_chats';
+        let conversations = JSON.parse(localStorage.getItem(conversationsKey)) || [];
+        let activeChatId = null;
+        let isGenerating = false;
+        let activeReader = null;
+        let uploadedImageBase64 = null;
+        let uploadedImageName = null;
+
+        // Binding Dom Elements
+        const messagesContainer = document.getElementById('chat-messages-container');
+        const welcomePane = document.getElementById('chat-welcome-pane');
+        const promptTextarea = document.getElementById('chat-prompt-textarea');
+        const sendBtn = document.getElementById('btn-chat-send');
+        const modelSelect = document.getElementById('chat-model-select');
+        const activeTitle = document.getElementById('chat-active-title');
+        
+        const historyList = document.getElementById('chat-history-list');
+        const pinnedList = document.getElementById('chat-pinned-list');
+        const searchInput = document.getElementById('chat-search-input');
+        const newChatBtn = document.getElementById('btn-chat-new');
+        const clearAllBtn = document.getElementById('btn-chat-clear-all');
+        const exportBtn = document.getElementById('btn-chat-export');
+        const importBtn = document.getElementById('btn-chat-import');
+        const importFileInput = document.getElementById('chat-import-file');
+        
+        const fileInput = document.getElementById('chat-file-input');
+        const attachBtn = document.getElementById('btn-chat-attach');
+        const imgPreviewBox = document.getElementById('chat-image-preview-box');
+        const imgPreviewImg = document.getElementById('chat-image-preview-img');
+        const imgPreviewName = document.getElementById('chat-image-preview-name');
+        const imgPreviewRemove = document.getElementById('btn-chat-image-remove');
+        
+        const micBtn = document.getElementById('btn-chat-mic');
+        const tokenCountEl = document.getElementById('chat-token-count');
+        const charCountEl = document.getElementById('chat-char-count');
+        
+        const settingsToggle = document.getElementById('btn-chat-settings-toggle');
+        const settingsDrawer = document.getElementById('chat-settings-drawer');
+        const settingsClose = document.getElementById('btn-chat-settings-close');
+        
+        const settingSystem = document.getElementById('chat-setting-system');
+        const settingTemp = document.getElementById('chat-setting-temp');
+        const settingTokens = document.getElementById('chat-setting-tokens');
+        const settingTopp = document.getElementById('chat-setting-topp');
+        const settingStream = document.getElementById('chat-setting-stream');
+        const settingMemory = document.getElementById('chat-setting-memory');
+        
+        const valTemp = document.getElementById('chat-val-temp');
+        const valTokens = document.getElementById('chat-val-tokens');
+        const valTopp = document.getElementById('chat-val-topp');
+
+        // State Helpers
+        const saveChats = () => {
+            localStorage.setItem(conversationsKey, JSON.stringify(conversations));
+        };
+
+        const generateId = () => 'chat-' + Math.random().toString(36).substr(2, 9);
+
+        // Markdown formatter with line numbers & actions
+        const formatMarkdown = (text) => {
+            if (!text) return '';
+            let html = text;
+            html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+            html = html.replace(codeBlockRegex, (match, lang, code) => {
+                const uniqueId = 'code-' + Math.random().toString(36).substr(2, 9);
+                const language = lang || 'javascript';
+                return `
+                    <div class="code-block-container" style="border: 1px solid var(--border-color); border-radius: 8px; margin: 1rem 0; overflow: hidden; background: var(--bg-primary); font-family: var(--font-mono); font-size: 0.85rem; text-align: left;">
+                        <div class="code-block-header" style="background: var(--bg-secondary); padding: 0.5rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); user-select:none;">
+                            <span style="font-weight: 700; text-transform: uppercase;">${language}</span>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('.code-raw-content').value).then(() => toasts.show('Code copied', 'success'))" style="background: none; border: none; color: inherit; cursor: pointer;">Copy</button>
+                                <button onclick="window.appInstance.downloadCode('${language}', this.closest('.code-block-container').querySelector('.code-raw-content').value)" style="background: none; border: none; color: inherit; cursor: pointer;">Download</button>
+                                <button onclick="const pre = this.closest('.code-block-container').querySelector('pre'); pre.style.whiteSpace = pre.style.whiteSpace === 'pre' ? 'pre-wrap' : 'pre'" style="background: none; border: none; color: inherit; cursor: pointer;">Wrap</button>
+                                <button onclick="const content = this.closest('.code-block-container').querySelector('.code-body-wrapper'); content.style.display = content.style.display === 'none' ? 'block' : 'none'; this.textContent = content.style.display === 'none' ? 'Expand' : 'Collapse';" style="background: none; border: none; color: inherit; cursor: pointer;">Collapse</button>
+                            </div>
+                        </div>
+                        <div class="code-body-wrapper">
+                            <input type="hidden" class="code-raw-content" value="${code}">
+                            <pre style="margin: 0; padding: 1rem; overflow-x: auto; white-space: pre; font-family: inherit; line-height: 1.5; color: var(--text-primary);"><code style="font-family: inherit;">${code}</code></pre>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html = html.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*([\s\S]*?)\*/g, '<em>$1</em>');
+            html = html.replace(/`([^`]+)`/g, '<code style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.35rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em;">$1</code>');
+            html = html.replace(/\n/g, '<br>');
+            return html;
+        };
+
+        // Render Conversation List
+        const renderHistory = () => {
+            if (!historyList || !pinnedList) return;
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            const listItems = conversations.filter(c => c.title.toLowerCase().includes(query));
+
+            const buildHtml = (item) => `
+                <div class="chat-history-item ${item.id === activeChatId ? 'active' : ''}" data-chat-id="${item.id}" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.85rem; margin-bottom:0.25rem; transition: background 0.2s; position:relative;" onmouseover="this.querySelector('.chat-item-actions').style.display='flex'" onmouseout="this.querySelector('.chat-item-actions').style.display='none'">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left;" class="chat-item-title">${item.title}</span>
+                    <div class="chat-item-actions" style="display:none; gap:0.25rem; align-items:center;">
+                        <button class="btn-chat-pin-toggle" style="background:none; border:none; color:var(--text-muted); padding:0; cursor:pointer; font-size:0.8rem;" title="Pin Chat">${item.pinned ? '📌' : '📍'}</button>
+                        <button class="btn-chat-rename-toggle" style="background:none; border:none; color:var(--text-muted); padding:0; cursor:pointer; font-size:0.8rem;" title="Rename Chat">✏️</button>
+                        <button class="btn-chat-delete-toggle" style="background:none; border:none; color:var(--color-error); padding:0; cursor:pointer; font-size:0.8rem;" title="Delete Chat">&times;</button>
+                    </div>
+                </div>
+            `;
+
+            pinnedList.innerHTML = listItems.filter(c => c.pinned).map(buildHtml).join('') || `<span style="font-size:0.75rem; color:var(--text-muted); padding:0.5rem 0.75rem; display:block; text-align:left;">No pinned chats</span>`;
+            historyList.innerHTML = listItems.filter(c => !c.pinned).map(buildHtml).join('') || `<span style="font-size:0.75rem; color:var(--text-muted); padding:0.5rem 0.75rem; display:block; text-align:left;">No recent chats</span>`;
+
+            // Bind Event listeners
+            document.querySelectorAll('.chat-history-item').forEach(el => {
+                const chatId = el.dataset.chatId;
+
+                el.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') return;
+                    switchActiveChat(chatId);
+                });
+
+                // Double click to rename
+                el.addEventListener('dblclick', () => {
+                    triggerRename(chatId);
+                });
+
+                // Actions handlers
+                el.querySelector('.btn-chat-pin-toggle').addEventListener('click', () => {
+                    const chat = conversations.find(c => c.id === chatId);
+                    if (chat) {
+                        chat.pinned = !chat.pinned;
+                        saveChats();
+                        renderHistory();
+                    }
+                });
+
+                el.querySelector('.btn-chat-rename-toggle').addEventListener('click', () => {
+                    triggerRename(chatId);
+                });
+
+                el.querySelector('.btn-chat-delete-toggle').addEventListener('click', () => {
+                    if (confirm('Delete this conversation?')) {
+                        deleteChat(chatId);
+                    }
+                });
+            });
+        };
+
+        const triggerRename = (chatId) => {
+            const chat = conversations.find(c => c.id === chatId);
+            if (!chat) return;
+            const newTitle = prompt('Rename conversation:', chat.title);
+            if (newTitle && newTitle.trim()) {
+                chat.title = newTitle.trim();
+                saveChats();
+                renderHistory();
+                if (chatId === activeChatId) {
+                    activeTitle.textContent = chat.title;
+                }
+            }
+        };
+
+        const deleteChat = (chatId) => {
+            conversations = conversations.filter(c => c.id !== chatId);
+            saveChats();
+            if (activeChatId === chatId) {
+                activeChatId = conversations.length > 0 ? conversations[0].id : null;
+            }
+            renderHistory();
+            loadActiveMessages();
+        };
+
+        // Switch Active chat
+        const switchActiveChat = (chatId) => {
+            activeChatId = chatId;
+            renderHistory();
+            loadActiveMessages();
+        };
+
+        // Load Active Messages in Chat Box
+        const loadActiveMessages = () => {
+            if (!messagesContainer) return;
+            messagesContainer.innerHTML = '';
+            
+            const chat = conversations.find(c => c.id === activeChatId);
+            if (!chat || chat.messages.length === 0) {
+                welcomePane.style.display = 'flex';
+                activeTitle.textContent = 'New Conversation';
+                return;
+            }
+
+            welcomePane.style.display = 'none';
+            activeTitle.textContent = chat.title;
+
+            chat.messages.forEach(msg => {
+                appendMessageToContainer(msg.role, msg.content, msg.images, msg.timestamp, false);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        // UI Append Message bubble helper
+        const appendMessageToContainer = (role, content, images, timestamp, isStreaming = false) => {
+            welcomePane.style.display = 'none';
+            
+            const isUser = role === 'user';
+            const bubbleId = isStreaming ? 'streaming-bubble' : 'msg-' + Math.random().toString(36).substr(2, 9);
+            
+            let existingBubble = document.getElementById(bubbleId);
+            if (existingBubble) {
+                existingBubble.querySelector('.message-text').innerHTML = formatMarkdown(content);
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.id = bubbleId;
+            wrapper.style.display = 'flex';
+            wrapper.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+            wrapper.style.width = '100%';
+
+            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+            // Image tag markup
+            let imageMarkup = '';
+            if (images && images.length > 0) {
+                imageMarkup = images.map(img => `
+                    <div style="margin-bottom:0.5rem; max-width:200px;">
+                        <img src="${img}" style="width:100%; border-radius:6px; border:1px solid var(--border-color); object-fit:cover;">
+                    </div>
+                `).join('');
+            }
+
+            // Actions row markup
+            const actionsMarkup = isUser ? '' : `
+                <div style="display:flex; gap:0.75rem; margin-top:0.5rem; font-size:0.75rem; color:var(--text-muted); user-select:none;">
+                    <button class="btn-msg-copy" style="background:none; border:none; color:inherit; cursor:pointer;" onclick="navigator.clipboard.writeText(this.closest('.msg-bubble').querySelector('.msg-raw').value).then(() => toasts.show('Response copied', 'success'))">📋 Copy</button>
+                    <button class="btn-msg-read" style="background:none; border:none; color:inherit; cursor:pointer;">🔊 Read Aloud</button>
+                    <button class="btn-msg-like" style="background:none; border:none; color:inherit; cursor:pointer;">👍 Like</button>
+                    <button class="btn-msg-dislike" style="background:none; border:none; color:inherit; cursor:pointer;">👎 Dislike</button>
+                    <button class="btn-msg-retry" style="background:none; border:none; color:inherit; cursor:pointer;">🔄 Retry</button>
+                </div>
+            `;
+
+            wrapper.innerHTML = `
+                <div class="msg-bubble" style="max-width: 75%; text-align: left; padding: 1rem 1.25rem; border-radius: 12px; background: ${isUser ? 'var(--surface-primary)' : 'var(--bg-secondary)'}; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.25rem; position:relative;">
+                    <input type="hidden" class="msg-raw" value="${content}">
+                    <span style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.02em;">${isUser ? 'You' : 'Assistant'}</span>
+                    ${imageMarkup}
+                    <div class="message-text" style="font-size:0.9rem; line-height:1.6; color:var(--text-primary); word-break:break-word;">${formatMarkdown(content)}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+                        <span style="font-size:0.65rem; color:var(--text-muted);">${timeStr}</span>
+                    </div>
+                    ${actionsMarkup}
+                </div>
+            `;
+
+            // Bind read aloud voice synthesize button
+            if (!isUser) {
+                const readBtn = wrapper.querySelector('.btn-msg-read');
+                if (readBtn) {
+                    readBtn.addEventListener('click', () => {
+                        if (window.speechSynthesis) {
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(content);
+                            window.speechSynthesis.speak(utterance);
+                            toasts.show('Reading response aloud...', 'info');
+                        }
+                    });
+                }
+                const likeBtn = wrapper.querySelector('.btn-msg-like');
+                if (likeBtn) {
+                    likeBtn.addEventListener('click', () => {
+                        likeBtn.textContent = '👍 Liked';
+                        toasts.show('Feedback recorded.', 'success');
+                    });
+                }
+                const retryBtn = wrapper.querySelector('.btn-msg-retry');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', () => {
+                        regenerateResponse();
+                    });
+                }
+            }
+
+            messagesContainer.appendChild(wrapper);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        // Textarea Input Autosizing & counters
+        if (promptTextarea) {
+            promptTextarea.addEventListener('input', () => {
+                promptTextarea.style.height = 'auto';
+                promptTextarea.style.height = promptTextarea.scrollHeight + 'px';
+                
+                const val = promptTextarea.value;
+                charCountEl.textContent = val.length;
+                tokenCountEl.textContent = Math.ceil(val.length / 4);
+
+                sendBtn.disabled = val.trim().length === 0 && !uploadedImageBase64;
+            });
+
+            // Enter key binding
+            promptTextarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendBtn.disabled) {
+                        triggerSendMessage();
+                    }
+                }
+            });
+        }
+
+        // Attach Image parsing
+        if (attachBtn && fileInput) {
+            attachBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    toasts.show('Only image files are supported for visual analysis.', 'warning');
+                    return;
+                }
+
+                uploadedImageName = file.name;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedImageBase64 = event.target.result;
+                    imgPreviewImg.src = uploadedImageBase64;
+                    imgPreviewName.textContent = file.name;
+                    imgPreviewBox.style.display = 'flex';
+                    sendBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (imgPreviewRemove) {
+                imgPreviewRemove.addEventListener('click', () => {
+                    uploadedImageBase64 = null;
+                    uploadedImageName = null;
+                    imgPreviewBox.style.display = 'none';
+                    fileInput.value = '';
+                    sendBtn.disabled = promptTextarea.value.trim().length === 0;
+                });
+            }
+        }
+
+        // Speech Recognition voice dictation
+        if (micBtn) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    micBtn.textContent = '🛑';
+                    toasts.show('Listening... Speak now.', 'info');
+                };
+
+                recognition.onerror = () => {
+                    toasts.show('Voice input recognition error.', 'error');
+                    micBtn.textContent = '🎤';
+                };
+
+                recognition.onend = () => {
+                    micBtn.textContent = '🎤';
+                };
+
+                recognition.onresult = (event) => {
+                    const result = event.results[0][0].transcript;
+                    promptTextarea.value += result;
+                    promptTextarea.dispatchEvent(new Event('input'));
+                };
+
+                micBtn.addEventListener('click', () => {
+                    if (micBtn.textContent === '🛑') {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                    }
+                });
+            } else {
+                micBtn.style.display = 'none';
+            }
+        }
+
+        // Trigger Send message
+        const triggerSendMessage = async () => {
+            if (isGenerating) return;
+
+            const text = promptTextarea.value.trim();
+            if (!text && !uploadedImageBase64) return;
+
+            // Initialize active chat session if none exists
+            if (!activeChatId) {
+                const newId = generateId();
+                const newChat = {
+                    id: newId,
+                    title: text ? (text.slice(0, 24) + (text.length > 24 ? '...' : '')) : 'Image Upload ' + new Date().toLocaleTimeString(),
+                    messages: [],
+                    pinned: false
+                };
+                conversations.unshift(newChat);
+                activeChatId = newId;
+                saveChats();
+                renderHistory();
+            }
+
+            const currentChat = conversations.find(c => c.id === activeChatId);
+            if (!currentChat) return;
+
+            // Load attached images
+            const imagesList = uploadedImageBase64 ? [uploadedImageBase64] : [];
+            const timestamp = new Date().toISOString();
+
+            // Append User message to local state
+            const userMsg = { role: 'user', content: text, images: imagesList, timestamp };
+            currentChat.messages.push(userMsg);
+            
+            // Clear input box
+            promptTextarea.value = '';
+            promptTextarea.style.height = 'auto';
+            charCountEl.textContent = 0;
+            tokenCountEl.textContent = 0;
+            uploadedImageBase64 = null;
+            uploadedImageName = null;
+            imgPreviewBox.style.display = 'none';
+            fileInput.value = '';
+            sendBtn.disabled = true;
+
+            loadActiveMessages();
+
+            // Set loading indicators
+            isGenerating = true;
+            appendMessageToContainer('assistant', 'Thinking...', null, null, true);
+
+            // Fetch settings params
+            const system = settingSystem ? settingSystem.value : '';
+            const temp = parseFloat(settingTemp.value) / 100;
+            const maxTokens = parseInt(settingTokens.value);
+            const topp = parseFloat(settingTopp.value) / 100;
+            const stream = settingStream ? settingStream.checked : true;
+            const memoryVal = settingMemory ? settingMemory.value : '20';
+            const model = modelSelect.value;
+
+            // Limit conversation context messages by memory setting
+            let contextMessages = [...currentChat.messages];
+            if (memoryVal !== 'unlimited') {
+                const limit = parseInt(memoryVal);
+                contextMessages = contextMessages.slice(-limit);
+            }
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: contextMessages,
+                        model,
+                        temperature: temp,
+                        maxTokens,
+                        topP: topp,
+                        stream,
+                        systemPrompt: system
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                // Delete streaming thinking indicator placeholder
+                const indicator = document.getElementById('streaming-bubble');
+                if (indicator) indicator.remove();
+
+                let assistantResponseText = '';
+
+                if (stream && response.body) {
+                    // Start reading stream
+                    appendMessageToContainer('assistant', '', null, null, true);
+                    const reader = response.body.getReader();
+                    activeReader = reader;
+                    const decoder = new TextDecoder('utf-8');
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        
+                        // Parse Event-Stream lines
+                        const lines = chunk.split('\n');
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const dataStr = line.slice(6).trim();
+                                if (dataStr === '[DONE]') continue;
+                                try {
+                                    const parsed = JSON.parse(dataStr);
+                                    if (parsed.text) {
+                                        assistantResponseText += parsed.text;
+                                        appendMessageToContainer('assistant', assistantResponseText, null, null, true);
+                                    }
+                                } catch (e) {
+                                    // Raw text fallback
+                                    assistantResponseText += dataStr;
+                                    appendMessageToContainer('assistant', assistantResponseText, null, null, true);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    const data = await response.json();
+                    assistantResponseText = data.text || '';
+                }
+
+                // Save final assistant response to history
+                const finalAssistantBubble = document.getElementById('streaming-bubble');
+                if (finalAssistantBubble) finalAssistantBubble.remove();
+
+                const assistantMsg = { role: 'assistant', content: assistantResponseText, timestamp: new Date().toISOString() };
+                currentChat.messages.push(assistantMsg);
+                saveChats();
+                loadActiveMessages();
+
+            } catch (err) {
+                console.error(err);
+                toasts.show('Generation failed: ' + err.message, 'error');
+                const indicator = document.getElementById('streaming-bubble');
+                if (indicator) indicator.remove();
+                
+                // Add error fallback
+                const errorMsg = { role: 'assistant', content: `Sorry, there was a connection error to the AI provider. Details: ${err.message}`, timestamp: new Date().toISOString() };
+                currentChat.messages.push(errorMsg);
+                saveChats();
+                loadActiveMessages();
+            } finally {
+                isGenerating = false;
+                activeReader = null;
+            }
+        };
+
+        const regenerateResponse = () => {
+            const currentChat = conversations.find(c => c.id === activeChatId);
+            if (!currentChat || currentChat.messages.length < 2) return;
+            // Pop the last assistant response
+            if (currentChat.messages[currentChat.messages.length - 1].role === 'assistant') {
+                currentChat.messages.pop();
+            }
+            saveChats();
+            triggerSendMessage();
+        };
+
+        // Binding sidebar actions
+        if (newChatBtn) {
+            newChatBtn.addEventListener('click', () => {
+                const newId = generateId();
+                const newChat = {
+                    id: newId,
+                    title: 'New Conversation',
+                    messages: [],
+                    pinned: false
+                };
+                conversations.unshift(newChat);
+                activeChatId = newId;
+                saveChats();
+                renderHistory();
+                loadActiveMessages();
+            });
+        }
+
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Clear all conversation history? This cannot be undone.')) {
+                    conversations = [];
+                    activeChatId = null;
+                    saveChats();
+                    renderHistory();
+                    loadActiveMessages();
+                }
+            });
+        }
+
+        // Search conversations title filter
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                renderHistory();
+            });
+        }
+
+        // Export history
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                const blob = new Blob([JSON.stringify(conversations, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `3m_studio_chat_export_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toasts.show('Chat history exported successfully.', 'success');
+            });
+        }
+
+        // Import history
+        if (importBtn && importFileInput) {
+            importBtn.addEventListener('click', () => importFileInput.click());
+            importFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        if (Array.isArray(imported)) {
+                            conversations = [...imported, ...conversations];
+                            saveChats();
+                            renderHistory();
+                            if (conversations.length > 0) {
+                                switchActiveChat(conversations[0].id);
+                            }
+                            toasts.show('Chat history imported successfully.', 'success');
+                        } else {
+                            throw new Error('Invalid format: file should be a JSON array of chats');
+                        }
+                    } catch (err) {
+                        toasts.show('Import failed: ' + err.message, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Settings toggle drawers
+        if (settingsToggle && settingsDrawer && settingsClose) {
+            settingsToggle.addEventListener('click', () => {
+                settingsDrawer.style.display = settingsDrawer.style.display === 'none' ? 'flex' : 'none';
+            });
+            settingsClose.addEventListener('click', () => {
+                settingsDrawer.style.display = 'none';
+            });
+        }
+
+        // Slider value update triggers
+        if (settingTemp && valTemp) {
+            settingTemp.addEventListener('input', (e) => {
+                valTemp.textContent = (parseFloat(e.target.value) / 100).toFixed(1);
+            });
+        }
+        if (settingTokens && valTokens) {
+            settingTokens.addEventListener('input', (e) => {
+                valTokens.textContent = e.target.value;
+            });
+        }
+        if (settingTopp && valTopp) {
+            settingTopp.addEventListener('input', (e) => {
+                valTopp.textContent = (parseFloat(e.target.value) / 100).toFixed(1);
+            });
+        }
+
+        // Bind sample prompt clicks
+        document.querySelectorAll('.welcome-sample-prompt').forEach(el => {
+            el.addEventListener('click', () => {
+                promptTextarea.value = el.textContent.replace(/"/g, '');
+                promptTextarea.dispatchEvent(new Event('input'));
+                promptTextarea.focus();
+            });
+        });
+
+        // Initialize lists rendering
+        renderHistory();
+        if (conversations.length > 0) {
+            switchActiveChat(conversations[0].id);
+        } else {
+            loadActiveMessages();
+        }
+    }
+
+    downloadCode(lang, code) {
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `3m_script.${lang === 'javascript' ? 'js' : (lang === 'html' ? 'html' : (lang === 'css' ? 'css' : 'txt'))}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
     // Blog reader overlay simulator

@@ -1038,6 +1038,191 @@
     </template>
 
 
+    <!-- PAGE 1.5: AI CHAT PAGE -->
+    <template id="page-ai-chat">
+        <div class="chat-workspace-layout" style="display: flex; height: calc(100vh - var(--header-height)); background: var(--bg-primary); overflow: hidden;">
+            <!-- Left Sidebar -->
+            <aside class="chat-sidebar" style="width: 280px; border-right: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0;">
+                <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; flex: 1;">
+                    <button class="btn btn-primary w-full" id="btn-chat-new" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>+</span> New Conversation
+                    </button>
+                    
+                    <input type="search" id="chat-search-input" placeholder="Search conversations..." style="width: 100%; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); outline: none; font-size: 0.85rem;">
+                    
+                    <!-- Folders & History Group -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; text-align: left;">
+                        <!-- Pinned Chats -->
+                        <div>
+                            <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">📌 Pinned Chats</span>
+                            <div id="chat-pinned-list" style="display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.5rem;">
+                                <!-- Pinned conversations loaded here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Recent History -->
+                        <div>
+                            <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">🕒 Recent Chats</span>
+                            <div id="chat-history-list" style="display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.5rem;">
+                                <!-- Conversations loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Utilities -->
+                <div style="padding: 1rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; justify-content: space-between; gap: 0.5rem;">
+                        <button class="btn btn-outline btn-small w-full" id="btn-chat-import" style="font-size:0.75rem;">Import</button>
+                        <button class="btn btn-outline btn-small w-full" id="btn-chat-export" style="font-size:0.75rem;">Export</button>
+                        <input type="file" id="chat-import-file" style="display:none;" accept=".json">
+                    </div>
+                    <button class="btn btn-transparent w-full" id="btn-chat-clear-all" style="font-size:0.75rem; color:var(--color-error); padding: 0.25rem;">Clear All History</button>
+                </div>
+            </aside>
+
+            <!-- Main Panel -->
+            <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+                <!-- Chat Top bar -->
+                <header style="height: 60px; border-bottom: 1px solid var(--border-color); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-weight: 600; font-size: 0.95rem;" id="chat-active-title">Workspace Chat</span>
+                        <!-- Model Selection -->
+                        <div style="position: relative;">
+                            <select id="chat-model-select" style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.8rem; outline: none; cursor: pointer;">
+                                <option value="google/gemini-2.0-flash">Google Gemini 2.0 Flash</option>
+                                <option value="openai/gpt-4o-mini">OpenAI GPT-4o Mini</option>
+                                <option value="anthropic/claude-3-haiku">Anthropic Claude 3 Haiku</option>
+                                <option value="deepseek/deepseek-chat">DeepSeek Coder V2</option>
+                                <option value="openrouter/auto">OpenRouter Auto</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-outline btn-small" id="btn-chat-settings-toggle" style="display:flex; align-items:center; gap:0.25rem;">
+                        ⚙️ Chat Settings
+                    </button>
+                </header>
+
+                <!-- Messages Stream View -->
+                <div id="chat-messages-container" style="flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; scroll-behavior: smooth;">
+                    <!-- Default welcome view -->
+                    <div id="chat-welcome-pane" style="margin: auto; max-width: 500px; text-align: center; display: flex; flex-direction: column; gap: 1rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem;">🤖</div>
+                        <h2 style="font-weight:600; color:var(--text-primary);">3M Neural Composition Chat</h2>
+                        <p style="font-size:0.9rem; line-height:1.6;">Ask questions, draft shader templates, write WebGL animation code, or analyze uploaded images. Fully sandboxed and secured using our API gateway.</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; text-align:left; font-size:0.8rem; margin-top:1rem;">
+                            <div style="padding:0.75rem; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:6px; cursor:pointer;" class="welcome-sample-prompt">"Write a GLSL vertex shader that spins a cube on the Y-axis."</div>
+                            <div style="padding:0.75rem; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:6px; cursor:pointer;" class="welcome-sample-prompt">"How do I map Dolby sound colliders inside 3M Studio?"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input area -->
+                <footer style="padding: 1.5rem; background: var(--bg-secondary); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Image upload preview thumbnail -->
+                    <div id="chat-image-preview-box" style="display: none; align-items: center; gap: 0.5rem; padding: 0.25rem 0.5rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; width: fit-content; text-align: left;">
+                        <img id="chat-image-preview-img" src="" style="height: 40px; border-radius: 4px; object-fit: cover;">
+                        <span id="chat-image-preview-name" style="font-size: 0.75rem; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">image.png</span>
+                        <button id="btn-chat-image-remove" style="background: none; border: none; color: var(--color-error); cursor: pointer; font-size: 1rem; line-height: 1;">&times;</button>
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-end; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.5rem 0.75rem; box-shadow: var(--shadow-sm);">
+                        <!-- Attachment button -->
+                        <button id="btn-chat-attach" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; font-size: 1.25rem; line-height: 1;" title="Upload Image / Document">
+                            📎
+                        </button>
+                        <input type="file" id="chat-file-input" style="display:none;" accept="image/*,application/pdf,text/*">
+
+                        <!-- Main textarea -->
+                        <textarea id="chat-prompt-textarea" rows="1" placeholder="Type prompt here... (Shift+Enter for new line, Enter to send)" style="flex: 1; background: none; border: none; color: var(--text-primary); font-size: 0.9rem; outline: none; padding: 0.5rem 0; resize: none; max-height: 200px; font-family: inherit; line-height: 1.5;"></textarea>
+
+                        <!-- Voice Mic Button -->
+                        <button id="btn-chat-mic" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; font-size: 1.25rem; line-height: 1;" title="Voice Dictation">
+                            🎤
+                        </button>
+
+                        <!-- Send Button -->
+                        <button id="btn-chat-send" class="btn btn-primary" style="padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem;" disabled>
+                            Send
+                        </button>
+                    </div>
+
+                    <!-- Token counters and helpers -->
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0 0.5rem;">
+                        <div style="display:flex; gap:1rem;">
+                            <span>Tokens: <span id="chat-token-count">0</span></span>
+                            <span>Chars: <span id="chat-char-count">0</span></span>
+                        </div>
+                        <div>
+                            <span>Press Enter to Send</span>
+                        </div>
+                    </div>
+                </footer>
+
+                <!-- Settings Side Drawer overlay -->
+                <div id="chat-settings-drawer" style="position: absolute; top: 60px; right: 0; bottom: 0; width: 320px; background: var(--bg-secondary); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-lg); display: none; flex-direction: column; gap: 1.5rem; padding: 1.5rem; text-align: left; overflow-y: auto; z-index: var(--z-modal);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="font-size:1.1rem; font-weight:600; margin:0;">Model Parameters</h3>
+                        <button id="btn-chat-settings-close" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.25rem;">&times;</button>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                        <!-- System Prompt -->
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">System Instructions</label>
+                            <textarea id="chat-setting-system" rows="3" style="width:100%; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; padding:0.5rem; font-size:0.8rem; resize:vertical; outline:none;" placeholder="You are a helpful AI assistant..."></textarea>
+                        </div>
+
+                        <!-- Temperature -->
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-secondary);">
+                                <span>Temperature</span>
+                                <span id="chat-val-temp">0.7</span>
+                            </div>
+                            <input type="range" id="chat-setting-temp" min="0" max="100" value="70" style="width:100%;">
+                        </div>
+
+                        <!-- Max Tokens -->
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-secondary);">
+                                <span>Max Output Tokens</span>
+                                <span id="chat-val-tokens">2048</span>
+                            </div>
+                            <input type="range" id="chat-setting-tokens" min="256" max="4096" step="128" value="2048" style="width:100%;">
+                        </div>
+
+                        <!-- Top P -->
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-secondary);">
+                                <span>Top P</span>
+                                <span id="chat-val-topp">0.9</span>
+                            </div>
+                            <input type="range" id="chat-setting-topp" min="0" max="100" value="90" style="width:100%;">
+                        </div>
+
+                        <!-- Streaming toggle -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:600; color:var(--text-secondary);">
+                            <span>Enable Streaming Output</span>
+                            <input type="checkbox" id="chat-setting-stream" checked style="width:18px; height:18px; cursor:pointer;">
+                        </div>
+
+                        <!-- Memory Window -->
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Conversation Memory</label>
+                            <select id="chat-setting-memory" style="width:100%; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); padding:0.4rem; border-radius:6px; font-size:0.8rem; outline:none;">
+                                <option value="20">Last 20 messages</option>
+                                <option value="50">Last 50 messages</option>
+                                <option value="unlimited">Full context window</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </template>
+
+
     <!-- PAGE 2: ABOUT PAGE -->
     <template id="page-about">
         <section class="about-hero-section">
