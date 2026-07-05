@@ -58,6 +58,13 @@
 
     <!-- Main CSS StyleSheet Link -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="3M Studio">
 </head>
 <body class="dark-theme">
 
@@ -166,10 +173,26 @@
                 <a href="#/faq" class="nav-link">FAQ</a>
                 <a href="#/blog" class="nav-link">Blog</a>
                 <a href="#/docs" class="nav-link">Docs</a>
+                <a href="#/dashboard" class="nav-link">Workspace</a>
             </nav>
 
             <!-- Navbar Actions -->
             <div class="navbar-actions">
+                <!-- PWA Install Button -->
+                <button class="nav-icon-btn" id="pwa-install-btn" style="display:none;" aria-label="Install App" title="Install Application">
+                    <svg class="nav-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                </button>
+
+                <!-- Notifications Center Trigger -->
+                <button class="nav-icon-btn" id="trigger-notifications" aria-label="Open Notifications" title="System Alerts" style="position:relative;">
+                    <svg class="nav-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notification-badge" id="nav-notif-badge" style="display:none; position:absolute; top:2px; right:2px; width:8px; height:8px; border-radius:50%; background:var(--color-error);"></span>
+                </button>
+
                 <!-- Search Button -->
                 <button class="nav-icon-btn" id="trigger-global-search" aria-label="Open Search Dialog" title="Search documentation and posts">
                     <svg class="nav-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -209,6 +232,7 @@
                 <a href="#/faq" class="mobile-nav-link">FAQ</a>
                 <a href="#/blog" class="mobile-nav-link">Blog</a>
                 <a href="#/docs" class="mobile-nav-link">Documentation</a>
+                <a href="#/dashboard" class="mobile-nav-link">Workspace</a>
                 <div class="mobile-nav-divider"></div>
                 <button class="btn btn-outline w-full" id="mobile-login-btn">Sign In</button>
                 <button class="btn btn-primary w-full" id="mobile-signup-btn">Start Free &rarr;</button>
@@ -340,6 +364,28 @@
             <div class="search-footer-bar">
                 <span>Navigate <kbd>↑</kbd><kbd>↓</kbd></span>
                 <span>Select <kbd>Enter</kbd></span>
+                <span>Close <kbd>ESC</kbd></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Notifications Center Modal -->
+    <div id="notifications-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="modal-card search-card">
+            <div class="search-input-header" style="display:flex; align-items:center;">
+                <h3 class="auth-title" style="margin:0; font-size:1.25rem;">Notifications Center</h3>
+                <button class="modal-close-btn" id="close-notifications-modal" aria-label="Close alerts" style="margin-left:auto;">&times;</button>
+            </div>
+            <div class="search-results-body">
+                <div class="search-section-label" style="display:flex; align-items:center; width:100%;">
+                    <span>Recent Alerts</span>
+                    <button id="btn-clear-all-notifications" style="background:none; border:none; color:var(--color-purple); font-size:0.75rem; cursor:pointer; text-decoration:underline; margin-left:auto;">Clear All</button>
+                </div>
+                <div class="search-results-list" id="modal-notifications-list-container" style="max-height: 320px; gap: 0.75rem;">
+                    <!-- System notifications will load here -->
+                </div>
+            </div>
+            <div class="search-footer-bar">
                 <span>Close <kbd>ESC</kbd></span>
             </div>
         </div>

@@ -3780,3 +3780,274 @@ input[type="checkbox"].switch-input:checked + .switch-box .switch-inner-dot {
     animation-delay: -10s;
 }
 
+/* =========================================================================
+   14. ENTERPRISE STUDIO WORKSPACE & DYNAMIC COMPONENTS
+   ========================================================================= */
+
+/* Workspace Layout with panels */
+.workspace-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    height: 100vh;
+    background-color: var(--bg-primary);
+    overflow: hidden;
+}
+
+.workspace-sidebar {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.workspace-main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.workspace-split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.workspace-pane {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.workspace-pane.left {
+    border-right: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+}
+
+.workspace-pane.right {
+    background-color: var(--bg-secondary);
+}
+
+.workspace-properties {
+    background-color: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    padding: 1.5rem;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.properties-group {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.properties-title {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: var(--weight-bold);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+}
+
+/* AI Studio Elements */
+.ai-chat-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.ai-chat-messages {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ai-message {
+    max-width: 80%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.ai-message.user {
+    align-self: flex-end;
+    background-color: var(--color-purple);
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+}
+
+.ai-message.system {
+    align-self: flex-start;
+    background-color: var(--surface-primary);
+    color: var(--text-primary);
+    border-bottom-left-radius: 2px;
+    border: 1px solid var(--border-color);
+}
+
+.ai-chat-input-bar {
+    display: flex;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-tertiary);
+    border-top: 1px solid var(--border-color);
+    gap: 0.5rem;
+}
+
+.ai-chat-input-bar input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+}
+
+.ai-chat-input-bar input:focus {
+    outline: none;
+    border-color: var(--color-purple);
+}
+
+.token-counter-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    align-self: flex-end;
+    margin-top: 0.25rem;
+}
+
+/* File Explorer */
+.file-explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1rem;
+}
+
+.file-explorer-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.file-explorer-card:hover {
+    border-color: var(--color-purple);
+    transform: translateY(-2px);
+}
+
+.file-icon-large {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-name-label {
+    font-size: 0.8rem;
+    font-weight: var(--weight-medium);
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-actions-menu {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.file-explorer-card:hover .file-actions-menu {
+    opacity: 1;
+}
+
+.file-action-trigger {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.file-action-trigger:hover {
+    color: var(--text-primary);
+}
+
+.console-panel {
+    background-color: #030305;
+    border-top: 1px solid var(--border-color);
+    height: 160px;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-success);
+    overflow-y: auto;
+    text-align: left;
+}
+
+/* Notifications inside modal */
+.notif-item {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: var(--transition-fast);
+    text-align: left;
+}
+
+.notif-item:hover {
+    border-color: var(--color-purple);
+}
+
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-error);
+    flex-shrink: 0;
+}
+
+.notif-dot.read {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.notif-details {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.notif-title {
+    font-size: 0.85rem;
+    font-weight: var(--weight-medium);
+}
+
+.notif-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+

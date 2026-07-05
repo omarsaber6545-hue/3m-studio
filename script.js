@@ -29,6 +29,21 @@ class StateManager {
                 apiKey: '3m_studio_live_5a72d3f9b2c8901ef563e412'
             });
         }
+        if (!this.get('files')) {
+            this.set('files', [
+                { name: 'obsidian-mesh.gltf', type: 'model', size: '4.2 MB', icon: '📦' },
+                { name: 'ambient-theme.wav', type: 'audio', size: '1.8 MB', icon: '🎵' },
+                { name: 'spin-rotation.js', type: 'code', size: '12 KB', icon: '📄' },
+                { name: 'config-settings.json', type: 'json', size: '2 KB', icon: '⚙️' }
+            ]);
+        }
+        if (!this.get('notifications')) {
+            this.set('notifications', [
+                { id: 1, title: 'GPU Cluster US-EAST synced successfully.', time: 'Just now', read: false },
+                { id: 2, title: 'New member Marta Al-Jamil joined as viewer.', time: '1 hour ago', read: true },
+                { id: 3, title: 'API deployment pipeline completed.', time: '2 hours ago', read: true }
+            ]);
+        }
     }
 
     set(key, val) {
@@ -208,7 +223,7 @@ class SearchEngine {
         this.trigger = document.getElementById('trigger-global-search');
         this.closeBtn = document.getElementById('close-search-modal');
         
-        // Internal index values representing platform nodes
+        // Internal index values representing platform nodes and commands
         this.index = [
             { title: 'Introduction to Spatial Meshes', category: 'Documentation', link: '#/docs' },
             { title: 'API Authentication Reference', category: 'Documentation', link: '#/docs' },
@@ -216,7 +231,12 @@ class SearchEngine {
             { title: 'Creative Ray-Tracing in WebGL2', category: 'Blog', link: '#/blog' },
             { title: 'VisionOS Spatial glTF Standards', category: 'Blog', link: '#/blog' },
             { title: 'General System FAQ & Credits', category: 'FAQs', link: '#/faq' },
-            { title: 'Enterprise Render Cluster setup', category: 'FAQs', link: '#/faq' }
+            { title: 'Enterprise Render Cluster setup', category: 'FAQs', link: '#/faq' },
+            { title: '/theme - Toggle Dark/Light Mode', category: 'Command', link: 'action:theme' },
+            { title: '/settings - Open Workspace Settings', category: 'Command', link: '#/dashboard?tab=settings' },
+            { title: '/dashboard - Open Workspace Dashboard', category: 'Command', link: '#/dashboard' },
+            { title: '/admin - Open Enterprise Team Console', category: 'Command', link: '#/admin' },
+            { title: '/reset - Clear LocalDatabase caches', category: 'Command', link: 'action:reset' }
         ];
 
         this.init();
@@ -246,7 +266,7 @@ class SearchEngine {
         if (!this.resultsContainer) return;
         
         if (!query.trim()) {
-            this.resultsContainer.innerHTML = `<p class="search-placeholder-text">Type your query to search spatial media indices...</p>`;
+            this.resultsContainer.innerHTML = `<p class="search-placeholder-text">Type your query or /command to search spatial indices...</p>`;
             return;
         }
 
@@ -260,12 +280,18 @@ class SearchEngine {
             return;
         }
 
-        this.resultsContainer.innerHTML = filtered.map(item => `
-            <a href="${item.link}" class="search-result-item" onclick="modals.close('search-modal')">
-                <span class="search-result-category">${item.category}</span>
-                <span class="search-result-title">${item.title}</span>
-            </a>
-        `).join('');
+        this.resultsContainer.innerHTML = filtered.map(item => {
+            const isAction = item.link.startsWith('action:');
+            const clickHandler = isAction 
+                ? `event.preventDefault(); window.appInstance.executeCommand('${item.link.split(':')[1]}'); modals.close('search-modal');`
+                : `modals.close('search-modal');`;
+            return `
+                <a href="${isAction ? '#' : item.link}" class="search-result-item" onclick="${clickHandler}">
+                    <span class="search-result-category">${item.category}</span>
+                    <span class="search-result-title">${item.title}</span>
+                </a>
+            `;
+        }).join('');
     }
 }
 
@@ -468,21 +494,27 @@ class Router {
     }
 
     handleRoute() {
-        const hash = window.location.hash || '#/';
+        let hash = window.location.hash || '#/';
+        let queryParams = null;
+        if (hash.includes('?')) {
+            const parts = hash.split('?');
+            hash = parts[0];
+            queryParams = new URLSearchParams(parts[1]);
+        }
         
         // Trigger exit page transition animation
         if (this.appRoot) {
             this.appRoot.className = 'page-transition-container fade-out';
             
             setTimeout(() => {
-                this.renderPage(hash);
+                this.renderPage(hash, queryParams);
                 this.appRoot.className = 'page-transition-container fade-in';
                 window.scrollTo(0, 0);
             }, 250);
         }
     }
 
-    renderPage(hash) {
+    renderPage(hash, queryParams) {
         // Router Mappings
         const routes = {
             '#/': 'page-home',
@@ -503,7 +535,8 @@ class Router {
         // 1. Check for programmatic views first (Dashboard and Admin)
         if (hash === '#/dashboard') {
             this.appRoot.innerHTML = this.getDashboardMarkup();
-            this.app.initDashboardLogic();
+            const tab = queryParams ? queryParams.get('tab') : 'analytics';
+            this.app.initDashboardLogic(tab);
             this.updateActiveNavLinks(hash);
             return;
         }
@@ -553,71 +586,30 @@ class Router {
 
     getDashboardMarkup() {
         return `
-            <div class="dashboard-layout">
-                <aside class="dashboard-sidebar">
+            <div class="workspace-layout">
+                <aside class="workspace-sidebar">
                     <div class="dashboard-sidebar-menu">
                         <div class="dash-menu-group">
-                            <span class="dash-menu-title">Studio Menu</span>
-                            <a href="#/dashboard" class="dash-menu-item active">📊 Workspace Stats</a>
-                            <a href="#/docs" class="dash-menu-item">🔌 API Documentation</a>
+                            <span class="dash-menu-title">Studio Core</span>
+                            <button class="dash-menu-item active" data-workspace-tab="analytics">📊 Analytics Board</button>
+                            <button class="dash-menu-item" data-workspace-tab="ai-studio">🤖 AI Creative Studio</button>
+                            <button class="dash-menu-item" data-workspace-tab="files">📁 Storage Files</button>
+                            <button class="dash-menu-item" data-workspace-tab="settings">⚙️ Studio Settings</button>
+                            <button class="dash-menu-item" data-workspace-tab="notifications">🔔 Notifications</button>
                             <a href="#/admin" class="dash-menu-item">👑 Team Console</a>
                             <a href="#/" class="dash-menu-item">↩ Exit Studio</a>
                         </div>
                     </div>
                     <div class="user-avatar-bar" style="display:flex; align-items:center; gap:0.5rem; padding:1rem; border-top:1px solid var(--border-color)">
-                        <div class="user-avatar-placeholder purple" style="width:32px; height:32px">AV</div>
+                        <div class="user-avatar-placeholder purple" id="workspace-user-avatar" style="width:32px; height:32px">AV</div>
                         <div style="display:flex; flex-direction:column; text-align:left">
-                            <span style="font-size:0.85rem; font-weight:600">Alexander Vance</span>
-                            <span style="font-size:0.7rem; color:var(--text-muted)">Lead Architect</span>
+                            <span id="workspace-user-name" style="font-size:0.85rem; font-weight:600">Alexander Vance</span>
+                            <span id="workspace-user-role" style="font-size:0.7rem; color:var(--text-muted)">Lead Architect</span>
                         </div>
                     </div>
                 </aside>
-                <main class="dashboard-main">
-                    <div class="dashboard-header">
-                        <div class="dashboard-title-group">
-                            <h1>Workspace Dashboard</h1>
-                            <p>Real-time analytics and dynamic task management boards.</p>
-                        </div>
-                        <button class="btn btn-primary btn-glow" id="dashboard-sync-btn">Sync Clusters</button>
-                    </div>
-
-                    <div class="dashboard-widgets-grid">
-                        <div class="widget-card">
-                            <div class="widget-header"><span>Render Cycles</span><span>Month</span></div>
-                            <div class="widget-value" id="dash-val-cycles">42,892</div>
-                            <div class="widget-change positive">+12.4% vs last month</div>
-                        </div>
-                        <div class="widget-card">
-                            <div class="widget-header"><span>Edge CDN Bandwidth</span><span>Month</span></div>
-                            <div class="widget-value">1.24 TB</div>
-                            <div class="widget-change positive">+8.2% vs last month</div>
-                        </div>
-                        <div class="widget-card">
-                            <div class="widget-header"><span>GPU Node Cluster Status</span><span>Live</span></div>
-                            <div class="widget-value" style="color:var(--color-success)">Healthy</div>
-                            <div class="widget-change positive">60 Active Nodes</div>
-                        </div>
-
-                        <!-- Simulating SVG Graph Widget -->
-                        <div class="widget-card widget-card-wide">
-                            <div class="widget-header"><span>GPU Thread Utilizations (Last 12 Hours)</span></div>
-                            <div class="chart-container-sim" id="dashboard-svg-chart">
-                                <!-- Bars will be generated by script -->
-                            </div>
-                        </div>
-
-                        <!-- Simulating Active Task Board Widget -->
-                        <div class="widget-card">
-                            <div class="widget-header"><span>Active Studio Tasks</span></div>
-                            <div class="task-list" id="dashboard-task-list">
-                                <!-- Tasks will load here -->
-                            </div>
-                            <div style="display:flex; gap:0.5rem; margin-top:1rem">
-                                <input type="text" id="new-task-input" placeholder="Type new task..." style="flex:1; padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary)">
-                                <button class="btn btn-primary btn-small" id="btn-add-task">+</button>
-                            </div>
-                        </div>
-                    </div>
+                <main class="workspace-main" id="workspace-content-pane">
+                    <!-- Dynamic pane content loaded on tab select -->
                 </main>
             </div>
         `;
@@ -750,6 +742,28 @@ class App {
                 this.toggleAuthTab(e.target.dataset.tab);
             });
         });
+
+        // Global Notifications Modal triggers
+        const notifBtn = document.getElementById('trigger-notifications');
+        const closeNotifBtn = document.getElementById('close-notifications-modal');
+        const clearAllNotifs = document.getElementById('btn-clear-all-notifications');
+        
+        if (notifBtn) notifBtn.addEventListener('click', () => {
+            modals.open('notifications-modal');
+            this.renderNotificationsList();
+            this.markNotificationsAsRead();
+        });
+        if (closeNotifBtn) closeNotifBtn.addEventListener('click', () => modals.close('notifications-modal'));
+        if (clearAllNotifs) clearAllNotifs.addEventListener('click', () => {
+            state.set('notifications', []);
+            this.renderNotificationsList();
+            this.updateNotificationsBadge();
+            toasts.show('All notifications cleared.', 'info');
+        });
+
+        // Initialize PWA Service Worker & Install flow
+        this.initPWAInstaller();
+        this.updateNotificationsBadge();
 
         // Initialize dynamic routers
         this.router = new Router(this);
@@ -1092,8 +1106,101 @@ class App {
     }
 
     // Dashboard Interactive Logic
-    initDashboardLogic() {
-        // Sync button
+    initDashboardLogic(defaultTab = 'analytics') {
+        this.switchWorkspaceTab(defaultTab);
+
+        // Sidebar tab selector events delegation
+        const sidebar = document.querySelector('.workspace-sidebar');
+        if (sidebar) {
+            sidebar.querySelectorAll('[data-workspace-tab]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.workspaceTab === defaultTab);
+            });
+            
+            sidebar.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-workspace-tab]');
+                if (btn) {
+                    const tabName = btn.dataset.workspaceTab;
+                    sidebar.querySelectorAll('[data-workspace-tab]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    this.switchWorkspaceTab(tabName);
+                }
+            });
+        }
+    }
+
+    switchWorkspaceTab(tabName) {
+        this.currentWorkspaceTab = tabName;
+        const pane = document.getElementById('workspace-content-pane');
+        if (!pane) return;
+
+        if (tabName === 'analytics') {
+            pane.innerHTML = this.getAnalyticsPaneHTML();
+            this.initAnalyticsPane();
+        } else if (tabName === 'ai-studio') {
+            pane.innerHTML = this.getAISpacePaneHTML();
+            this.initAISpacePane();
+        } else if (tabName === 'files') {
+            pane.innerHTML = this.getFileExplorerPaneHTML();
+            this.initFileExplorerPane();
+        } else if (tabName === 'settings') {
+            pane.innerHTML = this.getSettingsPaneHTML();
+            this.initSettingsPane();
+        } else if (tabName === 'notifications') {
+            pane.innerHTML = this.getNotificationsPaneHTML();
+            this.initNotificationsPane();
+        }
+    }
+
+    /* =========================================================================
+       ANALYTICS TAB MODULE
+       ========================================================================= */
+    getAnalyticsPaneHTML() {
+        return `
+            <div class="dashboard-header" style="padding: 1.5rem 2rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <div class="dashboard-title-group" style="text-align:left;">
+                    <h1 style="font-size:1.5rem; margin:0;">Workspace Analytics</h1>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 0.25rem 0 0 0;">Real-time performance metrics and dynamic thread trackers.</p>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-outline btn-small" id="btn-export-workspace-json">Export JSON</button>
+                    <button class="btn btn-primary btn-small" id="dashboard-sync-btn">Sync Clusters</button>
+                </div>
+            </div>
+            <div class="workspace-pane" style="padding:2rem;">
+                <div class="dashboard-widgets-grid">
+                    <div class="widget-card">
+                        <div class="widget-header"><span>Render Cycles</span><span>Month</span></div>
+                        <div class="widget-value" id="dash-val-cycles">42,892</div>
+                        <div class="widget-change positive">+12.4% vs last month</div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-header"><span>Edge CDN Bandwidth</span><span>Month</span></div>
+                        <div class="widget-value">1.24 TB</div>
+                        <div class="widget-change positive">+8.2% vs last month</div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-header"><span>GPU Node Cluster Status</span><span>Live</span></div>
+                        <div class="widget-value" style="color:var(--color-success)">Healthy</div>
+                        <div class="widget-change positive">60 Active Nodes</div>
+                    </div>
+                    <div class="widget-card widget-card-wide">
+                        <div class="widget-header"><span>GPU Thread Utilizations (Last 12 Hours)</span></div>
+                        <div class="chart-container-sim" id="dashboard-svg-chart"></div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-header"><span>Active Studio Tasks</span></div>
+                        <div class="task-list" id="dashboard-task-list"></div>
+                        <div style="display:flex; gap:0.5rem; margin-top:1rem">
+                            <input type="text" id="new-task-input" placeholder="Type new task..." style="flex:1; padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary)">
+                            <button class="btn btn-primary btn-small" id="btn-add-task">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    initAnalyticsPane() {
         const syncBtn = document.getElementById('dashboard-sync-btn');
         if (syncBtn) {
             syncBtn.addEventListener('click', () => {
@@ -1102,11 +1209,20 @@ class App {
                     toasts.show('All cluster connections verified. Sync complete.', 'success');
                     const cycleVal = document.getElementById('dash-val-cycles');
                     if (cycleVal) cycleVal.textContent = '44,912';
+                    this.addSimulatedNotification('GPU Cluster synchronizations successfully completed.');
                 }, 1500);
             });
         }
 
-        // Simulating the dynamic GPU Thread utilization charts
+        const exportBtn = document.getElementById('btn-export-workspace-json');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                const tasks = state.get('tasks');
+                this.exportData('json', tasks, 'studio-tasks-report');
+                toasts.show('Workspace report downloaded.', 'success');
+            });
+        }
+
         const chartSim = document.getElementById('dashboard-svg-chart');
         if (chartSim) {
             const chartData = [65, 45, 85, 30, 92, 54, 78, 62, 40, 88, 74, 95];
@@ -1118,10 +1234,8 @@ class App {
             `).join('');
         }
 
-        // Render Tasks board list
         this.renderDashboardTasks();
 
-        // Add task button
         const addTaskBtn = document.getElementById('btn-add-task');
         const taskInput = document.getElementById('new-task-input');
         if (addTaskBtn && taskInput) {
@@ -1146,7 +1260,7 @@ class App {
 
         const tasksList = state.get('tasks');
         if (tasksList.length === 0) {
-            holder.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted)">All tasks completed.</p>`;
+            holder.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted); margin:0;">All tasks completed.</p>`;
             return;
         }
 
@@ -1161,7 +1275,6 @@ class App {
             </div>
         `).join('');
 
-        // Attach buttons handlers inside board list
         holder.querySelectorAll('.btn-check-task').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = parseInt(e.target.dataset.id);
@@ -1185,6 +1298,644 @@ class App {
                 toasts.show('Task removed.', 'info');
             });
         });
+    }
+
+    /* =========================================================================
+       AI CREATIVE STUDIO TAB MODULE
+       ========================================================================= */
+    getAISpacePaneHTML() {
+        return `
+            <div class="dashboard-header" style="padding: 1.25rem 2rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <div class="dashboard-title-group" style="text-align:left;">
+                    <h1 style="font-size:1.5rem; margin:0;">AI Creative Studio</h1>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 0.25rem 0 0 0;">Generate high-fidelity assets using our neural composition models.</p>
+                </div>
+                <div class="token-counter-badge" id="ai-token-count" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">Tokens: 0 / 100,000</div>
+            </div>
+            <div class="workspace-split-view">
+                <!-- AI Chat Side -->
+                <div class="workspace-pane left" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div class="ai-chat-container">
+                        <div class="ai-chat-messages" id="ai-chat-history">
+                            <div class="ai-message system">
+                                <strong>3M Neural Engine:</strong> Welcome to the spatial composition workspace. Choose a generation template or start typing in the chat below.
+                            </div>
+                        </div>
+                        <div class="ai-chat-input-bar">
+                            <input type="text" id="ai-chat-prompt-input" placeholder="Ask AI to design, animate, or translate...">
+                            <button class="btn btn-primary" id="btn-send-ai-prompt">Generate</button>
+                            <button class="btn btn-outline" id="btn-stop-ai-gen" style="display:none; color:var(--color-error); border-color:var(--color-error);">Stop</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; gap:1rem;">
+                        <select id="prompt-template-select" style="background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-secondary); padding:0.45rem; border-radius:6px; font-size:0.8rem; flex:1; outline:none;">
+                            <option value="">-- Apply Prompt Template --</option>
+                            <option value="mesh">Generate Obsidian Mesh 3D geometry</option>
+                            <option value="music">Compose dynamic Cyberpunk ambient audio</option>
+                            <option value="code">Write threeJS particle rotation loop</option>
+                            <option value="email">Write release announcement email to users</option>
+                        </select>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-outline btn-small" id="btn-export-chat">Export Chat</button>
+                            <button class="btn btn-outline btn-small" id="btn-regenerate-ai">Regenerate</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Controls & Property Panel -->
+                <div class="workspace-properties">
+                    <div class="properties-group">
+                        <div class="properties-title">AI Image Generator</div>
+                        <input type="text" id="ai-image-prompt" placeholder="Sleek glassmorphic sphere..." style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); margin-bottom:0.5rem; font-size:0.85rem;">
+                        <button class="btn btn-primary w-full btn-small" id="btn-generate-ai-image">Generate Image Mockup</button>
+                    </div>
+                    <div class="properties-group">
+                        <div class="properties-title">AI Video Composer</div>
+                        <input type="text" id="ai-video-prompt" placeholder="Floating liquid chrome loop..." style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); margin-bottom:0.5rem; font-size:0.85rem;">
+                        <button class="btn btn-primary w-full btn-small" id="btn-generate-ai-video">Compose Spatial Video</button>
+                    </div>
+                    <div class="properties-group">
+                        <div class="properties-title">AI Soundcompose</div>
+                        <input type="text" id="ai-music-prompt" placeholder="Dark ambient synthwave pads..." style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); margin-bottom:0.5rem; font-size:0.85rem;">
+                        <button class="btn btn-primary w-full btn-small" id="btn-generate-ai-sound">Generate Spatial Audio</button>
+                    </div>
+                    <div class="properties-group">
+                        <div class="properties-title">Interactive AI Code</div>
+                        <input type="text" id="ai-code-prompt" placeholder="Rotate canvas mesh matrix..." style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); margin-bottom:0.5rem; font-size:0.85rem;">
+                        <button class="btn btn-primary w-full btn-small" id="btn-generate-ai-code">Generate JS Script</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    initAISpacePane() {
+        const promptInput = document.getElementById('ai-chat-prompt-input');
+        const sendBtn = document.getElementById('btn-send-ai-prompt');
+        const stopBtn = document.getElementById('btn-stop-ai-gen');
+        const templateSelect = document.getElementById('prompt-template-select');
+        const chatHistory = document.getElementById('ai-chat-history');
+
+        this.aiGenerationActive = false;
+        this.tokenCounter = 1240;
+        this.updateTokenBadge();
+
+        if (sendBtn && promptInput) {
+            sendBtn.addEventListener('click', () => {
+                const text = promptInput.value.trim();
+                if (text) {
+                    this.appendChatMessage('user', text);
+                    promptInput.value = '';
+                    this.simulateStreamingAIResponse(text);
+                }
+            });
+            promptInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendBtn.click();
+            });
+        }
+
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                if (this.aiGenerationActive) {
+                    this.aiGenerationActive = false;
+                    toasts.show('Generation stopped by user.', 'warning');
+                    if (sendBtn) sendBtn.style.display = 'block';
+                    stopBtn.style.display = 'none';
+                }
+            });
+        }
+
+        if (templateSelect && promptInput) {
+            templateSelect.addEventListener('change', (e) => {
+                const opt = e.target.value;
+                if (opt === 'mesh') promptInput.value = 'Generate a high-fidelity glTF mesh representing an Obsidian Sphere with dynamic refract index.';
+                else if (opt === 'music') promptInput.value = 'Compose a dark Synthwave audio track at 110bpm with spatial depth nodes.';
+                else if (opt === 'code') promptInput.value = 'Create a WebGL2 render rotation matrix that cycles particle coordinates in real-time.';
+                else if (opt === 'email') promptInput.value = 'Draft a corporate product launch email introducing the Cinema Render Engine.';
+            });
+        }
+
+        // Sub-generators triggers
+        const triggerImage = document.getElementById('btn-generate-ai-image');
+        if (triggerImage) {
+            triggerImage.addEventListener('click', () => {
+                const p = document.getElementById('ai-image-prompt').value || 'glassmorphic asset';
+                this.appendChatMessage('user', `Generate AI image for: ${p}`);
+                this.simulateStreamingAIResponse(`🎨 AI Image Generator outputs 3D asset texture matching prompt: "${p}". Texture mapped successfully.`);
+            });
+        }
+
+        const triggerVideo = document.getElementById('btn-generate-ai-video');
+        if (triggerVideo) {
+            triggerVideo.addEventListener('click', () => {
+                const p = document.getElementById('ai-video-prompt').value || 'liquid metal loop';
+                this.appendChatMessage('user', `Compose spatial video for: ${p}`);
+                this.simulateStreamingAIResponse(`🎬 Spatial Video loops compiled: [240 frames, 60fps] for prompt "${p}". Saved to workspace assets.`);
+            });
+        }
+
+        const triggerSound = document.getElementById('btn-generate-ai-sound');
+        if (triggerSound) {
+            triggerSound.addEventListener('click', () => {
+                const p = document.getElementById('ai-music-prompt').value || 'synth pad loop';
+                this.appendChatMessage('user', `Compose dynamic audio for: ${p}`);
+                this.simulateStreamingAIResponse(`🎵 Neural sound wave field synthesized for: "${p}". Output is mapped to listener coordinates.`);
+            });
+        }
+
+        const triggerCode = document.getElementById('btn-generate-ai-code');
+        if (triggerCode) {
+            triggerCode.addEventListener('click', () => {
+                const p = document.getElementById('ai-code-prompt').value || 'mesh rotation';
+                this.appendChatMessage('user', `Generate WebGL script for: ${p}`);
+                this.simulateStreamingAIResponse(`💻 Script generated: \`\`\`javascript\n// Matrix conversion for: ${p}\nfunction rotateMatrix(v) {\n   return [v[0]*Math.cos(0.01), v[1]*Math.sin(0.01)];\n}\n\`\`\``);
+            });
+        }
+
+        const exportChat = document.getElementById('btn-export-chat');
+        if (exportChat) {
+            exportChat.addEventListener('click', () => {
+                if (chatHistory) {
+                    const text = chatHistory.innerText;
+                    this.exportData('txt', text, 'ai-chat-history');
+                    toasts.show('Chat history downloaded.', 'success');
+                }
+            });
+        }
+
+        const regenerateBtn = document.getElementById('btn-regenerate-ai');
+        if (regenerateBtn) {
+            regenerateBtn.addEventListener('click', () => {
+                this.appendChatMessage('user', 'Please regenerate the previous output.');
+                this.simulateStreamingAIResponse('Re-evaluating neural matrices... Here is the optimized spatial configuration.');
+            });
+        }
+    }
+
+    appendChatMessage(sender, text) {
+        const chatHistory = document.getElementById('ai-chat-history');
+        if (!chatHistory) return;
+
+        const msg = document.createElement('div');
+        msg.className = `ai-message ${sender === 'user' ? 'user' : 'system'}`;
+        msg.innerHTML = sender === 'user' ? `<strong>You:</strong> ${text}` : `<strong>3M Engine:</strong> ${text}`;
+        
+        // Add Copy button to system responses
+        if (sender !== 'user') {
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = 'Copy';
+            copyBtn.style.cssText = 'background:none; border:1px solid var(--border-color); font-size:0.65rem; padding:0.1rem 0.3rem; border-radius:4px; margin-left:0.5rem; cursor:pointer; color:var(--text-muted);';
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(text);
+                toasts.show('Response copied to clipboard.', 'success');
+            });
+            msg.appendChild(copyBtn);
+        }
+
+        chatHistory.appendChild(msg);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    simulateStreamingAIResponse(promptText) {
+        const sendBtn = document.getElementById('btn-send-ai-prompt');
+        const stopBtn = document.getElementById('btn-stop-ai-gen');
+        if (sendBtn) sendBtn.style.display = 'none';
+        if (stopBtn) stopBtn.style.display = 'block';
+
+        this.aiGenerationActive = true;
+        
+        // Dynamic responses matching prompt words
+        let baseResponse = 'Neural processor executed spatial calculations. Asset coordinates mapped. Compiled successfully.';
+        if (promptText.toLowerCase().includes('mesh') || promptText.toLowerCase().includes('obsidian')) {
+            baseResponse = 'Obsidian Sphere mesh compiled. Geometry contains 42,000 polygon vertices. Material roughness set to 0.12. Spatial coordinates baked to global bucket.';
+        } else if (promptText.toLowerCase().includes('music') || promptText.toLowerCase().includes('audio')) {
+            baseResponse = 'Cyberpunk audio composite generated at 110bpm. 32-bit depth spatial channels allocated. Ambient noise cancelers successfully synchronized.';
+        } else if (promptText.toLowerCase().includes('code') || promptText.toLowerCase().includes('threejs')) {
+            baseResponse = 'WebGL rotation matrix complete:\n```javascript\nrequestAnimationFrame(function animate(t) {\n   mesh.rotation.y = t * 0.001;\n   renderer.render(scene, camera);\n});\n```';
+        }
+
+        const chatHistory = document.getElementById('ai-chat-history');
+        if (!chatHistory) return;
+
+        const systemMsg = document.createElement('div');
+        systemMsg.className = 'ai-message system';
+        systemMsg.innerHTML = `<strong>3M Engine:</strong> <span class="streaming-text"></span>`;
+        chatHistory.appendChild(systemMsg);
+        
+        const streamContainer = systemMsg.querySelector('.streaming-text');
+        let index = 0;
+
+        const interval = setInterval(() => {
+            if (!this.aiGenerationActive) {
+                clearInterval(interval);
+                return;
+            }
+
+            if (index < baseResponse.length) {
+                streamContainer.textContent += baseResponse[index];
+                index++;
+                this.tokenCounter += 4;
+                this.updateTokenBadge();
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            } else {
+                clearInterval(interval);
+                this.aiGenerationActive = false;
+                if (sendBtn) sendBtn.style.display = 'block';
+                if (stopBtn) stopBtn.style.display = 'none';
+
+                // Add copy button
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = 'Copy';
+                copyBtn.style.cssText = 'background:none; border:1px solid var(--border-color); font-size:0.65rem; padding:0.1rem 0.3rem; border-radius:4px; margin-left:0.5rem; cursor:pointer; color:var(--text-muted);';
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(baseResponse);
+                    toasts.show('Response copied to clipboard.', 'success');
+                });
+                systemMsg.appendChild(copyBtn);
+            }
+        }, 15);
+    }
+
+    updateTokenBadge() {
+        const badge = document.getElementById('ai-token-count');
+        if (badge) {
+            badge.textContent = `Tokens: ${this.tokenCounter.toLocaleString()} / 100,000`;
+        }
+    }
+
+    /* =========================================================================
+       FILE EXPLORER TAB MODULE
+       ========================================================================= */
+    getFileExplorerPaneHTML() {
+        return `
+            <div class="dashboard-header" style="padding: 1.5rem 2rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <div class="dashboard-title-group" style="text-align:left;">
+                    <h1 style="font-size:1.5rem; margin:0;">File Explorer</h1>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0 0;">Manage spatial geometry nodes, audio loops, and project exports.</p>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-outline btn-small" id="btn-add-folder">+ Folder</button>
+                    <button class="btn btn-primary btn-small" id="btn-upload-file">Upload File</button>
+                </div>
+            </div>
+            <div class="workspace-pane" style="padding:2rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem; align-items:center; gap:2rem;">
+                    <input type="search" id="file-search" placeholder="Filter files..." style="padding:0.4rem 1rem; border-radius:100px; border:1px solid var(--border-color); background:rgba(0,0,0,0.2); color:var(--text-primary); font-size:0.85rem; width:220px; outline:none;">
+                    <div style="width:250px; text-align:right;">
+                        <span id="file-usage-label" style="font-size:0.75rem; color:var(--text-secondary);">Storage usage: 24.5 MB / 100 MB</span>
+                        <div class="upgrade-progress-bar" style="margin-top:0.25rem;"><div class="progress-fill" id="file-usage-bar" style="width:24%;"></div></div>
+                    </div>
+                </div>
+                <div class="file-explorer-grid" id="explorer-files-grid">
+                    <!-- Files loaded dynamically -->
+                </div>
+            </div>
+        `;
+    }
+
+    initFileExplorerPane() {
+        this.renderFileExplorerGrid();
+
+        const searchInput = document.getElementById('file-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                const list = state.get('files');
+                const filtered = list.filter(f => f.name.toLowerCase().includes(q));
+                this.renderFileExplorerGrid(filtered);
+            });
+        }
+
+        const uploadBtn = document.getElementById('btn-upload-file');
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+                const name = prompt('Enter filename to upload (e.g. cyber-prism.obj):');
+                if (name) {
+                    const list = state.get('files');
+                    list.push({ name: name, type: 'model', size: '1.2 MB', icon: '📦' });
+                    state.set('files', list);
+                    this.renderFileExplorerGrid();
+                    toasts.show('File uploaded successfully.', 'success');
+                }
+            });
+        }
+
+        const addFolderBtn = document.getElementById('btn-add-folder');
+        if (addFolderBtn) {
+            addFolderBtn.addEventListener('click', () => {
+                const name = prompt('Enter folder name:');
+                if (name) {
+                    const list = state.get('files');
+                    list.unshift({ name: name, type: 'folder', size: '-', icon: '📁' });
+                    state.set('files', list);
+                    this.renderFileExplorerGrid();
+                    toasts.show('Folder created.', 'success');
+                }
+            });
+        }
+    }
+
+    renderFileExplorerGrid(customList = null) {
+        const grid = document.getElementById('explorer-files-grid');
+        if (!grid) return;
+
+        const list = customList || state.get('files');
+        if (list.length === 0) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; padding: 3rem; text-align:center; color:var(--text-muted);">No files inside this storage directory.</div>`;
+            return;
+        }
+
+        grid.innerHTML = list.map((file, idx) => `
+            <div class="file-explorer-card" data-index="${idx}">
+                <div class="file-icon-large">${file.icon}</div>
+                <div class="file-name-label" title="${file.name}">${file.name}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top:0.25rem;">${file.size}</div>
+                <div class="file-actions-menu">
+                    <span class="file-action-trigger" data-action-idx="${idx}">⋮</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Listen for actions clicks
+        grid.querySelectorAll('.file-action-trigger').forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(e.target.dataset.actionIdx);
+                const filesList = state.get('files');
+                const file = filesList[idx];
+
+                const act = prompt(`Action for "${file.name}":\n1. Rename\n2. Delete\n3. Duplicate\nEnter option number (1-3):`);
+                if (act === '1') {
+                    const newName = prompt('Enter new filename:', file.name);
+                    if (newName) {
+                        file.name = newName;
+                        state.set('files', filesList);
+                        this.renderFileExplorerGrid();
+                        toasts.show('File renamed.', 'success');
+                    }
+                } else if (act === '2') {
+                    filesList.splice(idx, 1);
+                    state.set('files', filesList);
+                    this.renderFileExplorerGrid();
+                    toasts.show('File deleted.', 'info');
+                } else if (act === '3') {
+                    const copy = { ...file, name: `Copy of ${file.name}` };
+                    filesList.splice(idx + 1, 0, copy);
+                    state.set('files', filesList);
+                    this.renderFileExplorerGrid();
+                    toasts.show('File duplicated.', 'success');
+                }
+            });
+        });
+    }
+
+    /* =========================================================================
+       STUDIO SETTINGS TAB MODULE
+       ========================================================================= */
+    getSettingsPaneHTML() {
+        return `
+            <div class="dashboard-header" style="padding: 1.5rem 2rem; border-bottom:1px solid var(--border-color);">
+                <div class="dashboard-title-group" style="text-align:left;">
+                    <h1 style="font-size:1.5rem; margin:0;">Studio Settings</h1>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0 0;">Configure your profile, accessibility parameters, and dev options.</p>
+                </div>
+            </div>
+            <div class="workspace-pane" style="padding:2rem; max-width:600px; text-align:left;">
+                <div class="properties-group">
+                    <div class="properties-title">User Profile</div>
+                    <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Display Name</label>
+                        <input type="text" id="settings-name" value="Alexander Vance" style="padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); outline:none;">
+                        <label style="font-size:0.8rem; font-weight:600;">Role Description</label>
+                        <input type="text" id="settings-role" value="Lead Architect" style="padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:rgba(0,0,0,0.1); color:var(--text-primary); outline:none;">
+                    </div>
+                    <button class="btn btn-primary btn-small" id="btn-save-profile">Save Changes</button>
+                </div>
+                <div class="properties-group">
+                    <div class="properties-title">Experimental Features</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <span style="font-size:0.85rem;">Ray-Tracing Previews</span>
+                        <input type="checkbox" id="exp-raytrace" style="width:20px; height:20px; cursor:pointer;">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem;">Spatial CDN Preloading</span>
+                        <input type="checkbox" id="exp-preload" style="width:20px; height:20px; cursor:pointer;">
+                    </div>
+                </div>
+                <div class="properties-group">
+                    <div class="properties-title">Developer Controls</div>
+                    <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:1rem;">Reset settings data in LocalDatabase.</p>
+                    <button class="btn btn-outline btn-small" id="btn-reset-db-settings" style="color:var(--color-error); border-color:rgba(239, 68, 68, 0.4);">Reset Local Database</button>
+                </div>
+            </div>
+        `;
+    }
+
+    initSettingsPane() {
+        const prof = state.get('profile') || {};
+        const nameInput = document.getElementById('settings-name');
+        const roleInput = document.getElementById('settings-role');
+        const saveBtn = document.getElementById('btn-save-profile');
+
+        if (nameInput && prof.name) nameInput.value = prof.name;
+        if (roleInput && prof.role) roleInput.value = prof.role;
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                prof.name = nameInput.value.trim();
+                prof.role = roleInput.value.trim();
+                state.set('profile', prof);
+                
+                // Update workspace avatar strings
+                const avName = document.getElementById('workspace-user-name');
+                const avRole = document.getElementById('workspace-user-role');
+                const avLogo = document.getElementById('workspace-user-avatar');
+                if (avName) avName.textContent = prof.name;
+                if (avRole) avRole.textContent = prof.role;
+                if (avLogo && prof.name) avLogo.textContent = prof.name.slice(0,2).toUpperCase();
+
+                toasts.show('Profile configurations saved.', 'success');
+            });
+        }
+
+        const resetBtn = document.getElementById('btn-reset-db-settings');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if (confirm('Clear all settings and local cache?')) {
+                    state.clear();
+                    toasts.show('LocalDatabase cleared. Reloading...', 'info');
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            });
+        }
+    }
+
+    /* =========================================================================
+       NOTIFICATIONS TAB MODULE
+       ========================================================================= */
+    getNotificationsPaneHTML() {
+        return `
+            <div class="dashboard-header" style="padding: 1.5rem 2rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <div class="dashboard-title-group" style="text-align:left;">
+                    <h1 style="font-size:1.5rem; margin:0;">Notifications Center</h1>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0 0;">Platform events, team alerts, and GPU server logs.</p>
+                </div>
+                <button class="btn btn-outline btn-small" id="btn-pane-clear-notifs">Clear All</button>
+            </div>
+            <div class="workspace-pane" style="padding:2rem;">
+                <div style="display:flex; flex-direction:column; gap:0.75rem;" id="pane-notifications-list">
+                    <!-- Notifications list will render here -->
+                </div>
+            </div>
+        `;
+    }
+
+    initNotificationsPane() {
+        this.renderWorkspaceNotifications();
+        
+        const clearBtn = document.getElementById('btn-pane-clear-notifs');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                state.set('notifications', []);
+                this.renderWorkspaceNotifications();
+                this.updateNotificationsBadge();
+                toasts.show('All notifications cleared.', 'info');
+            });
+        }
+    }
+
+    renderWorkspaceNotifications() {
+        const holder = document.getElementById('pane-notifications-list');
+        if (!holder) return;
+
+        const list = state.get('notifications') || [];
+        if (list.length === 0) {
+            holder.innerHTML = `<div style="padding: 3rem; text-align:center; color:var(--text-muted);">No new notifications.</div>`;
+            return;
+        }
+
+        holder.innerHTML = list.map(item => `
+            <div class="notif-item">
+                <div class="notif-dot ${item.read ? 'read' : ''}"></div>
+                <div class="notif-details">
+                    <span class="notif-title">${item.title}</span>
+                    <span class="notif-time">${item.time}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    /* =========================================================================
+       GLOBAL UTILITIES FOR PWA & EXPORTS
+       ========================================================================= */
+    renderNotificationsList() {
+        const holder = document.getElementById('modal-notifications-list-container');
+        if (!holder) return;
+
+        const list = state.get('notifications') || [];
+        if (list.length === 0) {
+            holder.innerHTML = `<p class="search-placeholder-text">No active alerts at this time.</p>`;
+            return;
+        }
+
+        holder.innerHTML = list.map(item => `
+            <div class="notif-item" style="border-radius:6px; padding:0.6rem 0.8rem;">
+                <div class="notif-dot ${item.read ? 'read' : ''}"></div>
+                <div class="notif-details">
+                    <span class="notif-title" style="font-size:0.8rem;">${item.title}</span>
+                    <span class="notif-time" style="font-size:0.65rem;">${item.time}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    markNotificationsAsRead() {
+        const list = state.get('notifications') || [];
+        list.forEach(n => n.read = true);
+        state.set('notifications', list);
+        this.updateNotificationsBadge();
+    }
+
+    updateNotificationsBadge() {
+        const badge = document.getElementById('nav-notif-badge');
+        if (!badge) return;
+
+        const list = state.get('notifications') || [];
+        const unread = list.filter(n => !n.read).length;
+        
+        if (unread > 0) {
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    addSimulatedNotification(title) {
+        const list = state.get('notifications') || [];
+        const newId = list.length > 0 ? Math.max(...list.map(n => n.id)) + 1 : 1;
+        list.unshift({ id: newId, title: title, time: 'Just now', read: false });
+        state.set('notifications', list);
+        this.updateNotificationsBadge();
+        
+        // Show as visual toast too
+        toasts.show(title, 'info');
+    }
+
+    initPWAInstaller() {
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'block';
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            toasts.show('3M Studio installed successfully!', 'success');
+                        }
+                        deferredPrompt = null;
+                        installBtn.style.display = 'none';
+                    });
+                }
+            });
+        }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('3M Studio PWA Service Worker Registered.'))
+                .catch((err) => console.log('SW Registration failed: ', err));
+        }
+    }
+
+    exportData(format, data, filename) {
+        let content = '';
+        let mimeType = 'text/plain';
+        
+        if (format === 'json') {
+            content = JSON.stringify(data, null, 2);
+            mimeType = 'application/json';
+        } else if (format === 'txt') {
+            content = data;
+            mimeType = 'text/plain';
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
     // Admin Console panel logic
@@ -1251,6 +2002,19 @@ class App {
                 <td><code style="font-family:var(--font-mono); font-size:0.8rem">${u.quota}</code></td>
             </tr>
         `).join('');
+    }
+
+    executeCommand(cmd) {
+        if (cmd === 'theme') {
+            this.theme.toggle();
+            toasts.show('Theme toggled.', 'info');
+        } else if (cmd === 'reset') {
+            if (confirm('Clear local database configuration?')) {
+                state.clear();
+                toasts.show('LocalDatabase cleared. Reloading...', 'info');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        }
     }
 }
 
