@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\omars\\OneDrive\\Desktop\\مش عارف project\\logs\\.3116e042ff21f862d6c5d0f6e1031933eea7e2ac-audit.json",
+    "files": [
+        {
+            "date": 1783215866945,
+            "name": "C:\\Users\\omars\\OneDrive\\Desktop\\مش عارف project\\logs\\security-2026-07-05.log",
+            "hash": "b51f8e0ee749b4cace1b13851d69303bc2b425fb1952297198d196b0c9284695"
+        }
+    ],
+    "hashType": "sha256"
+}

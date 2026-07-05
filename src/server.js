@@ -5,10 +5,14 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
+const session = require('express-session');
 
-// Load environment config
+// Config and services
 const env = require('./config/environment');
 const { logger, auditLogger } = require('./config/logger');
+const passport = require('./config/passport');
+const apiRouter = require('./routes');
+const { errorHandler } = require('./middleware/error.middleware');
 
 const app = express();
 
@@ -16,7 +20,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
 
-// Core middleware
+// Core security configurations
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -41,53 +45,52 @@ app.use(cookieParser(env.SESSION_SECRET));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Morgan request logging piped to Winston access transporter
+// Morgan request logging piped to Winston access log transporter
 app.use(morgan('combined', {
     stream: { write: (message) => auditLogger.info(message.trim()) }
 }));
 
+// Configure Express Sessions
+app.use(session({
+    secret: env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    }
+}));
+
+// Passport initialization
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Serves client static assets
 app.use(express.static(path.join(__dirname, '../public')));
 
-// MONITORING ENDPOINTS: Health checks
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
+// Versioned APIs Router
+app.use('/api/v1', apiRouter);
 
-app.get('/api/status', (req, res) => {
-    res.json({
-        uptime: process.uptime(),
-        memoryUsage: process.memoryUsage(),
-        nodeVersion: process.version,
-        env: env.NODE_ENV
+// Fallback Route for non-API html views
+app.get('*', (req, res, next) => {
+    // If requesting an API, return 404
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'Endpoint not found.' });
+    }
+    
+    // For non-API routes, attempt to render the page, otherwise render 404
+    const pagePath = req.path === '/' ? 'pages/home/index' : `pages${req.path}/index`;
+    res.render(pagePath, {}, (err, html) => {
+        if (err) {
+            return res.status(404).render('pages/404', { error: 'Page not found' });
+        }
+        res.send(html);
     });
 });
 
-app.get('/api/version', (req, res) => {
-    res.json({ version: '1.0.0' });
-});
-
-// Fallback Route for API Version v1
-app.use('/api/v1', (req, res) => {
-    res.status(404).json({ error: 'v1 API route not found.' });
-});
-
-// Global Centralized Error Handler Middleware
-app.use((err, req, res, next) => {
-    logger.error(err.message, { error: err });
-    
-    // Check if client expects JSON or EJS Page
-    if (req.accepts('html')) {
-        res.status(500).render('pages/404', { error: 'Internal Server Error' }, (renderErr, html) => {
-            if (renderErr) {
-                return res.status(500).send('Internal Server Error');
-            }
-            res.send(html);
-        });
-    } else {
-        res.status(500).json({ error: 'Internal Server Error.' });
-    }
-});
+// Centralized error catcher
+app.use(errorHandler);
 
 // Start Server
 app.listen(env.PORT, () => {

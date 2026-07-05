@@ -24,13 +24,13 @@ const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
     level: 'info',
     format: logFormat,
-    transporters: [
+    transports: [
         // Error logs
         createTransporter('error', 'error'),
         // System & Application logs
         createTransporter('system', 'info'),
         // Console transporter for Development
-        new winston.transporters.Console({
+        new winston.transports.Console({
             format: winston.format.combine(
                 winston.format.colorize(),
                 winston.format.simple()
@@ -43,7 +43,7 @@ const logger = winston.createLogger({
 const securityLogger = winston.createLogger({
     level: 'warn',
     format: logFormat,
-    transporters: [
+    transports: [
         createTransporter('security', 'warn')
     ]
 });
@@ -52,7 +52,7 @@ const securityLogger = winston.createLogger({
 const auditLogger = winston.createLogger({
     level: 'info',
     format: logFormat,
-    transporters: [
+    transports: [
         createTransporter('access', 'info')
     ]
 });
